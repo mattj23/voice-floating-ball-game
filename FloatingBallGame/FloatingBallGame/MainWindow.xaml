@@ -4,9 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FloatingBallGame"
+        xmlns:vm="clr-namespace:FloatingBallGame.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525"
+        d:DataContext="{d:DesignInstance vm:AppViewModel}">
     <Grid>
-        
+        <ItemsControl ItemsSource="{Binding DeviceNames}">
+            
+        </ItemsControl>
     </Grid>
 </Window>
