@@ -5,12 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FloatingBallGame"
         xmlns:vm="clr-namespace:FloatingBallGame.ViewModels"
+        xmlns:v="clr-namespace:FloatingBallGame.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
+        Title="Floating Ball Game" Height="600" Width="900"
         d:DataContext="{d:DesignInstance vm:AppViewModel}">
     <Grid>
-        <ItemsControl ItemsSource="{Binding DeviceNames}">
+        <v:PlayingView />
+
+        <v:LoadingView>
+            <v:LoadingView.Style>
+                <Style TargetType="v:LoadingView">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Mode}" Value="{x:Static local:AppMode.Loading}">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </v:LoadingView.Style>
+        </v:LoadingView>
+        
+        <v:DialogView ViewModel="{Binding Dialog}"
+                      DialogWidth="500">
             
-        </ItemsControl>
+        </v:DialogView>
     </Grid>
 </Window>

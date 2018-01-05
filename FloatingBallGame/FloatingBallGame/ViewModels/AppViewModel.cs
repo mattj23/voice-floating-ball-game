@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 using FloatingBallGame.Annotations;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
@@ -11,28 +12,51 @@ namespace FloatingBallGame.ViewModels
     public class AppViewModel : INotifyPropertyChanged
     {
         private static AppViewModel _global;
+        private AppMode _mode;
 
         public static AppViewModel Global => _global ?? (_global = new AppViewModel());
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ObservableCollection<string> DeviceNames { get; set; }
+        public AppMode Mode
+        {
+            get { return _mode; }
+            set
+            {
+                if (value == _mode) return;
+                _mode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public AudioProcessor Audio { get; set; }
+        public ConfigurationViewModel Config { get; set; }
+        public DialogViewModel Dialog { get; set; }
 
         private AppViewModel()
         {
-            this.DeviceNames = new ObservableCollection<string>();
-            int waveInDevices = WaveIn.DeviceCount;
-            for (int waveInDevice = 0; waveInDevice < waveInDevices; waveInDevice++)
-            {
-                WaveInCapabilities deviceInfo = WaveIn.GetCapabilities(waveInDevice);
-                this.DeviceNames.Add($"Device {waveInDevice}: {deviceInfo.ProductName}, {deviceInfo.Channels}");
-            }
+            this.Mode = AppMode.Loading;
+            this.Config = new ConfigurationViewModel();
+            this.Dialog = new DialogViewModel();
+            this.Audio = new AudioProcessor();
+            
+        }
 
-            return;
-            MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
-            foreach (MMDevice device in enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.All))
+        public void ConfigureAndStart()
+        {
+            try
             {
-                this.DeviceNames.Add($"{device.FriendlyName}, {device.State}");
+                this.Mode = AppMode.Playing;
+                this.Audio.Configure(this.Config.VolumeDevice, this.Config.FlowDevice);
+            }
+            catch (Exception e)
+            {
+                this.Dialog.ShowOkOnly("Error on configuration", $"An error occured on device configuration: {e.Message}", 
+                    () =>
+                    {
+                        AppViewModel.Global.Mode = AppMode.Loading;
+                    },
+                    new SolidColorBrush(Colors.LightCoral));
             }
         }
 
