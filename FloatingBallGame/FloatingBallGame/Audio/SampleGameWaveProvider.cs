@@ -5,12 +5,25 @@ namespace FloatingBallGame.Audio
 {
     public class SampleGameWaveProvider : IGameWaveProvider
     {
+        /// <summary>
+        /// Create a 
+        /// </summary>
+        /// <param name="configData"></param>
+        /// <returns></returns>
+        public static SampleGameWaveProvider Create(SampleProviderConfigData configData)
+        {
+            var cProvider = new WaveFileReader(configData.ConfigSample);
+            var pProvider = new WaveFileReader(configData.PlayingSample);
+            return new SampleGameWaveProvider(configData.Name, cProvider, pProvider);
+        }
+
         private IWaveProvider _calibrationProvider;
         private IWaveProvider _playingProvider;
 
 
-        public SampleGameWaveProvider(IWaveProvider calibrationProvider, IWaveProvider playingProvider)
+        public SampleGameWaveProvider(string name, IWaveProvider calibrationProvider, IWaveProvider playingProvider)
         {
+            this.Name = name;
             _calibrationProvider = calibrationProvider;
             _playingProvider = playingProvider;
         }

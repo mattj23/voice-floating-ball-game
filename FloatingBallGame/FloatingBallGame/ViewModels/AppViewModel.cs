@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
@@ -43,6 +44,8 @@ namespace FloatingBallGame.ViewModels
 
         public JsonSerializerSettings JsonSettings { get; set; }
 
+        public ObservableCollection<IGameWaveProvider> SampleProviders { get; set; }
+
         private AppViewModel()
         {
             this.Mode = AppMode.Loading;
@@ -61,7 +64,7 @@ namespace FloatingBallGame.ViewModels
             // Load the settings file
             try
             {
-                this.AppSettings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("app_settings.json"));
+                this.AppSettings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("app_settings.json"), this.JsonSettings);
             }
             catch (Exception e)
             {
@@ -72,6 +75,22 @@ namespace FloatingBallGame.ViewModels
                 return;
             }
 
+            // Load any sample providers
+            this.SampleProviders = new ObservableCollection<IGameWaveProvider>();
+            foreach (var configData in this.AppSettings.SampleProviders ?? Enumerable.Empty<SampleProviderConfigData>())
+            {
+                try
+                {
+                    this.SampleProviders.Add(SampleGameWaveProvider.Create(configData));
+                }
+                catch (Exception e)
+                {
+                    this.Dialog.ShowOkOnly("Failed to load sample",
+                        $"Error loading a sample wav file provider: {e.Message}",
+                        null,
+                        new SolidColorBrush(Colors.Yellow));
+                }
+            }
         }
 
         public void ConfigureAndStart()
