@@ -1,0 +1,14 @@
+{
+  "sample_providers": [
+    {
+      "name": "Jarrad Microphone Sample",
+      "config_sample": "samples\\JVS_u_MicCal_20180118.wav",
+      "playing_sample": "samples\\JVS_u_Mic_20180118.wav"
+    },
+    {
+      "name": "Jarrad Flow Sample",
+      "config_sample": "samples\\JVS_u_FlowCal_20180118.wav",
+      "playing_sample": "samples\\JVS_u_Flow_20180118.wav"
+    }
+  ]
+}

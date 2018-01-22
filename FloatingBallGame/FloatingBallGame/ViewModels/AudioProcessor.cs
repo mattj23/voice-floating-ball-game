@@ -8,8 +8,8 @@ namespace FloatingBallGame.ViewModels
 {
     public class AudioProcessor : INotifyPropertyChanged
     {
-        private WaveIn _volumeWaveIn;
-        private WaveIn _flowWaveIn;
+        private IWaveIn _volumeWaveIn;
+        private IWaveIn _flowWaveIn;
         private double _flow;
         private double _volume;
 

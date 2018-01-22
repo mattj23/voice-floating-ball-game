@@ -17,7 +17,6 @@ namespace FloatingBallGame.ViewModels
         private Action _okAction;
         private Action _cancelAction;
 
-
         private ConcurrentQueue<DialogInformation> _displayRequests;
 
         public bool IsActive

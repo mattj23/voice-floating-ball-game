@@ -61,7 +61,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppMode.cs" />
+    <Compile Include="Audio\DeviceGameWaveProvider.cs" />
+    <Compile Include="Audio\IGameWaveProvider.cs" />
+    <Compile Include="Audio\SampleGameWaveProvider.cs" />
+    <Compile Include="Audio\SampleProviderConfigData.cs" />
+    <Compile Include="Audio\WaveMode.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\AudioProcessor.cs" />
     <Compile Include="ViewModels\ConfigurationViewModel.cs" />
@@ -123,6 +129,9 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="app_settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

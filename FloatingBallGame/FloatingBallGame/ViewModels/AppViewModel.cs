@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Media;
 using FloatingBallGame.Annotations;
+using FloatingBallGame.Audio;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace FloatingBallGame.ViewModels
 {
@@ -33,6 +39,10 @@ namespace FloatingBallGame.ViewModels
         public ConfigurationViewModel Config { get; set; }
         public DialogViewModel Dialog { get; set; }
 
+        public Settings AppSettings { get; set; }
+
+        public JsonSerializerSettings JsonSettings { get; set; }
+
         private AppViewModel()
         {
             this.Mode = AppMode.Loading;
@@ -40,6 +50,28 @@ namespace FloatingBallGame.ViewModels
             this.Dialog = new DialogViewModel();
             this.Audio = new AudioProcessor();
             
+            // Json contract resolver
+            var contractResolver = new DefaultContractResolver {NamingStrategy = new SnakeCaseNamingStrategy()};
+            this.JsonSettings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                ContractResolver = contractResolver,
+            };
+
+            // Load the settings file
+            try
+            {
+                this.AppSettings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("app_settings.json"));
+            }
+            catch (Exception e)
+            {
+                this.Dialog.ShowOkOnly("Error Loading Settings",
+                    $"Error loading the application settings file 'app_settings.json', application will exit. Details: {e.Message}",
+                    Application.Current.Shutdown,
+                    new SolidColorBrush(Colors.LightCoral));
+                return;
+            }
+
         }
 
         public void ConfigureAndStart()
