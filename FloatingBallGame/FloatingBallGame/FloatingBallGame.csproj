@@ -72,9 +72,13 @@
     <Compile Include="ApplicationSettings.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\AudioProcessor.cs" />
+    <Compile Include="ViewModels\CalibrationViewModel.cs" />
     <Compile Include="ViewModels\ProviderSelectionViewModel.cs" />
     <Compile Include="ViewModels\DialogInformation.cs" />
     <Compile Include="ViewModels\DialogViewModel.cs" />
+    <Compile Include="Views\CalibrationView.xaml.cs">
+      <DependentUpon>CalibrationView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DialogView.xaml.cs">
       <DependentUpon>DialogView.xaml</DependentUpon>
     </Compile>
@@ -84,6 +88,10 @@
     <Compile Include="Views\PlayingView.xaml.cs">
       <DependentUpon>PlayingView.xaml</DependentUpon>
     </Compile>
+    <Page Include="CommonStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -96,6 +104,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\CalibrationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DialogView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

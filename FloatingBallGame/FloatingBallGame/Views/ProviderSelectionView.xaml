@@ -13,13 +13,16 @@
                 BorderThickness="1"
                 Background="WhiteSmoke"
                 Width="500"
-                Height="300"
+                VerticalAlignment="Center"
                 Padding="10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
@@ -28,14 +31,25 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 
-                <TextBlock Grid.Row="0"
+                <TextBlock Style="{StaticResource HeaderTextBlock}"
+                           Grid.ColumnSpan="3">
+                    Select Input Devices
+                </TextBlock>
+                
+                <TextBlock Style="{StaticResource InfoTextBlock}"
+                           Grid.Row="1"
+                           Grid.ColumnSpan="3">
+                    Select the audio devices for the two different game inputs.  The devices can be calibrated here, and their calibrations stored.
+                </TextBlock>
+                
+                <TextBlock Grid.Row="2"
                            Grid.Column="0"
                            Margin="7"
                            VerticalAlignment="Center">
                     Volume Input Device
                 </TextBlock>
                 
-                <ComboBox Grid.Row="0"
+                <ComboBox Grid.Row="2"
                           Grid.Column="1"
                           VerticalAlignment="Center"
                           Margin="5"
@@ -48,14 +62,26 @@
                     </ComboBox.ItemTemplate>    
                 </ComboBox>
 
-                <TextBlock Grid.Row="1"
+                <DockPanel Grid.Row="3"
+                            Grid.Column="1"
+                           Margin="5">
+                    <Button DockPanel.Dock="Right"
+                            Width="75">
+                        <TextBlock> Calibrate</TextBlock>
+                    </Button>
+                    <TextBlock>
+                        Placeholder for known calibration
+                    </TextBlock>
+                </DockPanel>
+                
+                <TextBlock Grid.Row="4"
                            Grid.Column="0"
                            Margin="7"
                            VerticalAlignment="Center">
                     Flow Input Device
                 </TextBlock>
 
-                <ComboBox Grid.Row="1"
+                <ComboBox Grid.Row="4"
                           Grid.Column="1"
                           VerticalAlignment="Center"
                           Margin="5"
@@ -67,12 +93,27 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                
-                <Button Grid.Row="3"
-                        Grid.Column="1"
+
+                <DockPanel Grid.Row="5"
+                           Grid.Column="1"
+                           Margin="5">
+                    <Button DockPanel.Dock="Right"
+                            Width="75">
+                        <TextBlock> Calibrate</TextBlock>
+                    </Button>
+                    <TextBlock>
+                        Placeholder for known calibration
+                    </TextBlock>
+                </DockPanel>
+
+
+                <Button Grid.Row="6"
+                        Margin="5"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
                         Click="BeginButtonClicked">
-                    <TextBlock Margin="5">
-                        Begin
+                    <TextBlock Margin="20 5">
+                        Begin Game
                     </TextBlock>
                 </Button>
             </Grid>
