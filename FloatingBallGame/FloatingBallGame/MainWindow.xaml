@@ -12,9 +12,9 @@
     <Grid>
         <v:PlayingView />
 
-        <v:LoadingView>
-            <v:LoadingView.Style>
-                <Style TargetType="v:LoadingView">
+        <v:ProviderSelectionView>
+            <v:ProviderSelectionView.Style>
+                <Style TargetType="v:ProviderSelectionView">
                     <Setter Property="Visibility" Value="Collapsed" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding Mode}" Value="{x:Static local:AppMode.Loading}">
@@ -22,8 +22,8 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </v:LoadingView.Style>
-        </v:LoadingView>
+            </v:ProviderSelectionView.Style>
+        </v:ProviderSelectionView>
         
         <v:DialogView ViewModel="{Binding Dialog}"
                       DialogWidth="500">
@@ -31,3 +31,6 @@
         </v:DialogView>
     </Grid>
 </Window>
+
+
+

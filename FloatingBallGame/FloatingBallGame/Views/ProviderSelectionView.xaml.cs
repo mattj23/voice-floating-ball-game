@@ -17,11 +17,11 @@ using FloatingBallGame.ViewModels;
 namespace FloatingBallGame.Views
 {
     /// <summary>
-    /// Interaction logic for LoadingView.xaml
+    /// Interaction logic for ProviderSelectionView.xaml
     /// </summary>
-    public partial class LoadingView : UserControl
+    public partial class ProviderSelectionView : UserControl
     {
-        public LoadingView()
+        public ProviderSelectionView()
         {
             InitializeComponent();
         }

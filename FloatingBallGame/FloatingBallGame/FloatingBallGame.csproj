@@ -62,22 +62,24 @@
     </ApplicationDefinition>
     <Compile Include="AppMode.cs" />
     <Compile Include="Audio\DeviceGameWaveProvider.cs" />
+    <Compile Include="Audio\IGameWavePrecursor.cs" />
     <Compile Include="Audio\IGameWaveProvider.cs" />
     <Compile Include="Audio\SampleGameWaveProvider.cs" />
     <Compile Include="Audio\SampleProviderConfigData.cs" />
+    <Compile Include="Audio\WaveInPrecursor.cs" />
     <Compile Include="Audio\WaveMode.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Settings.cs" />
+    <Compile Include="ApplicationSettings.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\AudioProcessor.cs" />
-    <Compile Include="ViewModels\ConfigurationViewModel.cs" />
+    <Compile Include="ViewModels\ProviderSelectionViewModel.cs" />
     <Compile Include="ViewModels\DialogInformation.cs" />
     <Compile Include="ViewModels\DialogViewModel.cs" />
     <Compile Include="Views\DialogView.xaml.cs">
       <DependentUpon>DialogView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LoadingView.xaml.cs">
-      <DependentUpon>LoadingView.xaml</DependentUpon>
+    <Compile Include="Views\ProviderSelectionView.xaml.cs">
+      <DependentUpon>ProviderSelectionView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PlayingView.xaml.cs">
       <DependentUpon>PlayingView.xaml</DependentUpon>
@@ -98,7 +100,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LoadingView.xaml">
+    <Page Include="Views\ProviderSelectionView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

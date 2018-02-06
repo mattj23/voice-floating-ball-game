@@ -3,12 +3,16 @@
     {
       "name": "Jarrad Microphone Sample",
       "config_sample": "samples\\JVS_u_MicCal_20180118.wav",
-      "playing_sample": "samples\\JVS_u_Mic_20180118.wav"
+      "playing_sample": "samples\\JVS_u_Mic_20180118.wav",
+      "id": "c2cc552b-14cf-4fc9-86e0-8f3a6a9dbae6"
     },
     {
       "name": "Jarrad Flow Sample",
       "config_sample": "samples\\JVS_u_FlowCal_20180118.wav",
-      "playing_sample": "samples\\JVS_u_Flow_20180118.wav"
+      "playing_sample": "samples\\JVS_u_Flow_20180118.wav",
+      "id": "c22914a8-2490-4467-8779-f12d050b630a"
     }
-  ]
+  ],
+  "sample_rate": 22050,
+  "buffer_ms": 50 
 }

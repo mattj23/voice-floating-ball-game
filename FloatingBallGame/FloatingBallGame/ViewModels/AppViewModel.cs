@@ -27,7 +27,7 @@ namespace FloatingBallGame.ViewModels
 
         public AppMode Mode
         {
-            get { return _mode; }
+            get => _mode;
             set
             {
                 if (value == _mode) return;
@@ -37,10 +37,10 @@ namespace FloatingBallGame.ViewModels
         }
 
         public AudioProcessor Audio { get; set; }
-        public ConfigurationViewModel Config { get; set; }
+        public ProviderSelectionViewModel Config { get; set; }
         public DialogViewModel Dialog { get; set; }
 
-        public Settings AppSettings { get; set; }
+        public ApplicationSettings AppSettings { get; set; }
 
         public JsonSerializerSettings JsonSettings { get; set; }
 
@@ -49,7 +49,7 @@ namespace FloatingBallGame.ViewModels
         private AppViewModel()
         {
             this.Mode = AppMode.Loading;
-            this.Config = new ConfigurationViewModel();
+            this.Config = new ProviderSelectionViewModel();
             this.Dialog = new DialogViewModel();
             this.Audio = new AudioProcessor();
             
@@ -64,7 +64,7 @@ namespace FloatingBallGame.ViewModels
             // Load the settings file
             try
             {
-                this.AppSettings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("app_settings.json"), this.JsonSettings);
+                this.AppSettings = JsonConvert.DeserializeObject<ApplicationSettings>(File.ReadAllText("app_settings.json"), this.JsonSettings);
             }
             catch (Exception e)
             {
@@ -98,7 +98,7 @@ namespace FloatingBallGame.ViewModels
             try
             {
                 this.Mode = AppMode.Playing;
-                this.Audio.Configure(this.Config.VolumeDevice, this.Config.FlowDevice);
+                // this.Audio.Configure(this.Config.VolumeDevice, this.Config.FlowDevice);
             }
             catch (Exception e)
             {

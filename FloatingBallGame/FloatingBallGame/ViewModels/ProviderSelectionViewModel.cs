@@ -6,16 +6,17 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using FloatingBallGame.Annotations;
+using FloatingBallGame.Audio;
 using NAudio.Wave;
 
 namespace FloatingBallGame.ViewModels
 {
-    public class ConfigurationViewModel : INotifyPropertyChanged
+    public class ProviderSelectionViewModel : INotifyPropertyChanged
     {
-        private WaveInCapabilities _volumeDevice;
-        private WaveInCapabilities _flowDevice;
+        private IGameWavePrecursor _volumeDevice;
+        private IGameWavePrecursor _flowDevice;
 
-        public WaveInCapabilities VolumeDevice
+        public IGameWavePrecursor VolumeDevice
         {
             get => _volumeDevice;
             set
@@ -26,7 +27,7 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
-        public WaveInCapabilities FlowDevice
+        public IGameWavePrecursor FlowDevice
         {
             get => _flowDevice;
             set
@@ -37,15 +38,31 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
-        public ObservableCollection<WaveInCapabilities> Devices { get; set; }
+        public ObservableCollection<IGameWavePrecursor> Devices { get; set; }
 
-        public ConfigurationViewModel()
+        public ProviderSelectionViewModel()
         {
-            this.Devices = new ObservableCollection<WaveInCapabilities>();
+            this.Devices = new ObservableCollection<IGameWavePrecursor>();
 
             var checkTimer = new DispatcherTimer {Interval = TimeSpan.FromSeconds(1)};
             checkTimer.Tick += CheckTimerOnTick;
             checkTimer.Start();
+        }
+
+        /// <summary>
+        /// Detect WaveIn devices and wrap the in a precursor object
+        /// </summary>
+        /// <returns></returns>
+        private List<IGameWavePrecursor> DetectDevices()
+        {
+            var detectedDevices = new List<IGameWavePrecursor>();
+            
+            int waveInDevices = WaveIn.DeviceCount;
+            for (int waveInDevice = 0; waveInDevice < waveInDevices; waveInDevice++)
+            {
+                detectedDevices.Add(new WaveInPrecursor(WaveIn.GetCapabilities(waveInDevice)));
+            }
+            return detectedDevices;
         }
 
         private void CheckTimerOnTick(object sender, EventArgs eventArgs)
@@ -53,27 +70,21 @@ namespace FloatingBallGame.ViewModels
             if (AppViewModel.Global.Mode != AppMode.Loading)
                 return;
 
-            var newDevices = new List<WaveInCapabilities>();
-
-            // Get all attached devices
-            int waveInDevices = WaveIn.DeviceCount;
-            for (int waveInDevice = 0; waveInDevice < waveInDevices; waveInDevice++)
-            {
-                newDevices.Add(WaveIn.GetCapabilities(waveInDevice));
-            }
+            var available = this.DetectDevices();
+            available.AddRange(AppViewModel.Global.SampleProviders.Select(x => x as IGameWavePrecursor));
 
             // Add any that aren't already present
-            foreach (var device in newDevices)
+            foreach (var device in available)
             {
-                if (this.Devices.All(x => x.ProductGuid != device.ProductGuid))
+                if (this.Devices.All(x => x.Id != device.Id))
                     this.Devices.Add(device);
             }
 
             // Remove any that are missing
-            var removeList = new List<WaveInCapabilities>();
+            var removeList = new List<IGameWavePrecursor>();
             foreach (var device in this.Devices)
             {
-                if (newDevices.All(x => x.ProductGuid != device.ProductGuid))
+                if (available.All(x => x.Id != device.Id))
                     removeList.Add(device);
             }
             foreach (var device in removeList)
