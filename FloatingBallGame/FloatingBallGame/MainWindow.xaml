@@ -25,6 +25,19 @@
             </v:ProviderSelectionView.Style>
         </v:ProviderSelectionView>
         
+        <v:CalibrationView Calibration="{Binding Calibration}">
+            <v:CalibrationView.Style>
+                <Style TargetType="{x:Type FrameworkElement}">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Mode}" Value="{x:Static local:AppMode.Calibrating}">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </v:CalibrationView.Style>
+        </v:CalibrationView>
+        
         <v:DialogView ViewModel="{Binding Dialog}"
                       DialogWidth="500">
             

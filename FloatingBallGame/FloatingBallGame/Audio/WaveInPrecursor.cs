@@ -15,7 +15,7 @@ namespace FloatingBallGame.Audio
 
         public string Name => _capabilities.ProductName;
 
-        public Guid Id => _capabilities.NameGuid;
+        public Guid Id => _capabilities.ProductGuid;
 
         public IGameWaveProvider ToProvider()
         {

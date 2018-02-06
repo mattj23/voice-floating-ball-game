@@ -36,6 +36,8 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        public CalibrationViewModel Calibration { get; }
+
         public AudioProcessor Audio { get; set; }
         public ProviderSelectionViewModel Config { get; set; }
         public DialogViewModel Dialog { get; set; }
@@ -52,6 +54,7 @@ namespace FloatingBallGame.ViewModels
             this.Config = new ProviderSelectionViewModel();
             this.Dialog = new DialogViewModel();
             this.Audio = new AudioProcessor();
+            this.Calibration = new CalibrationViewModel();
             
             // Json contract resolver
             var contractResolver = new DefaultContractResolver {NamingStrategy = new SnakeCaseNamingStrategy()};
@@ -109,6 +112,12 @@ namespace FloatingBallGame.ViewModels
                     },
                     new SolidColorBrush(Colors.LightCoral));
             }
+        }
+
+        public void CalibrateDevice(IGameWavePrecursor precursor, MeasurementType deviceType)
+        {
+            this.Mode = AppMode.Calibrating;
+            this.Calibration.SetPrecursor(precursor, deviceType);
         }
 
         [NotifyPropertyChangedInvocator]

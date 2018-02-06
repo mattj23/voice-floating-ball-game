@@ -11,6 +11,7 @@ namespace FloatingBallGame.ViewModels
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public MeasurementType DeviceType { get; private set; }
         public IGameWavePrecursor Precursor { get; private set; }
         public IGameWaveProvider Provider { get; private set; }
 
@@ -19,7 +20,7 @@ namespace FloatingBallGame.ViewModels
             
         }
 
-        public void SetPrecursor(IGameWavePrecursor precursor)
+        public void SetPrecursor(IGameWavePrecursor precursor, MeasurementType deviceType)
         {
             // Unsubscribe
             if (this.Provider != null)
@@ -28,6 +29,8 @@ namespace FloatingBallGame.ViewModels
             this.Precursor = precursor;
             this.Provider = precursor.ToProvider();
             this.Provider.DataAvailable += ProviderOnDataAvailable;
+
+            this.DeviceType = deviceType;
         }
 
         private void ProviderOnDataAvailable(object sender, WaveInEventArgs waveInEventArgs)

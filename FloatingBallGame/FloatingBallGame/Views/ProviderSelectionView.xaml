@@ -66,12 +66,12 @@
                             Grid.Column="1"
                            Margin="5">
                     <Button DockPanel.Dock="Right"
+                            Click="CalibrateVolumeDevice"
                             Width="75">
                         <TextBlock> Calibrate</TextBlock>
                     </Button>
-                    <TextBlock>
-                        Placeholder for known calibration
-                    </TextBlock>
+                    <TextBlock VerticalAlignment="Center" 
+                               Text="{Binding Config.VolumeDevice.Id}"/>
                 </DockPanel>
                 
                 <TextBlock Grid.Row="4"
@@ -101,9 +101,8 @@
                             Width="75">
                         <TextBlock> Calibrate</TextBlock>
                     </Button>
-                    <TextBlock>
-                        Placeholder for known calibration
-                    </TextBlock>
+                    <TextBlock VerticalAlignment="Center" 
+                               Text="{Binding Config.FlowDevice.Id}"/>
                 </DockPanel>
 
 

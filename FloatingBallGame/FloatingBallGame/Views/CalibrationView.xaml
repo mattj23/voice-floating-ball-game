@@ -9,7 +9,28 @@
     <Grid x:Name="LayoutRoot"
           d:DataContext="{d:DesignInstance local:CalibrationView}">
         <Grid>
-            
+            <Border Background="Black" 
+                    Opacity="0.5" />
+            <Border Background="WhiteSmoke"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Style="{StaticResource HeaderTextBlock}">
+                        Hello Everyone
+                    </TextBlock>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

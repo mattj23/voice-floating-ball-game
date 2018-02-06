@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using FloatingBallGame.Audio;
 using FloatingBallGame.ViewModels;
 
 namespace FloatingBallGame.Views
@@ -29,6 +30,11 @@ namespace FloatingBallGame.Views
         private void BeginButtonClicked(object sender, RoutedEventArgs e)
         {
             AppViewModel.Global.ConfigureAndStart();
+        }
+
+        private void CalibrateVolumeDevice(object sender, RoutedEventArgs e)
+        {
+            AppViewModel.Global.CalibrateDevice(AppViewModel.Global.Config.VolumeDevice, MeasurementType.Volume);
         }
     }
 }
