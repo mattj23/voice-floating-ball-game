@@ -17,6 +17,11 @@ namespace FloatingBallGame.Audio
 
         public string Name { get; }
 
-        public WaveMode Mode { get; set; }
+        public WaveMode Mode { get; private set; }
+
+        public void SetMode(WaveMode mode)
+        {
+            this.Mode = mode;
+        }
     }
 }

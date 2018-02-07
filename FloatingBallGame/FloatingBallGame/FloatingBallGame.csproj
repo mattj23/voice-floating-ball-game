@@ -71,6 +71,7 @@
     <Compile Include="Audio\MeasurementType.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ApplicationSettings.cs" />
+    <Compile Include="Tools\DelegateCommand.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\AudioProcessor.cs" />
     <Compile Include="ViewModels\CalibrationViewModel.cs" />
@@ -152,8 +153,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tools\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

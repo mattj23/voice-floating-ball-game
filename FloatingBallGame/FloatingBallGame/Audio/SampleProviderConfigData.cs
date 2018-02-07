@@ -1,4 +1,5 @@
 ﻿using System;
+using NAudio.Wave;
 
 namespace FloatingBallGame.Audio
 {
@@ -11,5 +12,9 @@ namespace FloatingBallGame.Audio
         public string PlayingSample { get; set; }
 
         public Guid Id { get; set; }
+
+        public WaveFileReader ConfigReader() => new WaveFileReader(this.ConfigSample);
+
+        public WaveFileReader PlayingReader() => new WaveFileReader(this.PlayingSample);
     }
 }

@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using System;
+using NAudio.Wave;
 
 namespace FloatingBallGame.Audio
 {
@@ -9,9 +10,12 @@ namespace FloatingBallGame.Audio
     /// </summary>
     public interface IGameWaveProvider : IWaveIn
     {
+
         string Name { get; }
 
-        WaveMode Mode { get; set; }
+        WaveMode Mode { get; }
+
+        void SetMode(WaveMode mode);
 
     }
 }

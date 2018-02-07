@@ -5,12 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FloatingBallGame.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="600" d:DesignWidth="800">
     <Grid x:Name="LayoutRoot"
           d:DataContext="{d:DesignInstance local:CalibrationView}">
         <Grid>
             <Border Background="Black" 
-                    Opacity="0.5" />
+                    Opacity="0.75" />
             <Border Background="WhiteSmoke"
                     BorderBrush="Black"
                     BorderThickness="1"
