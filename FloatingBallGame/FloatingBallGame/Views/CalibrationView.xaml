@@ -4,10 +4,32 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FloatingBallGame.Views"
+             xmlns:audio="clr-namespace:FloatingBallGame.Audio"
+             xmlns:vm="clr-namespace:FloatingBallGame.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid x:Name="LayoutRoot"
           d:DataContext="{d:DesignInstance local:CalibrationView}">
+        <Grid.Resources>
+            <Style x:Key="ShowWhenVolume"
+                   TargetType="{x:Type FrameworkElement}">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Calibration.DeviceType}" Value="{x:Static audio:MeasurementType.Volume}">
+                        <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="ShowWhenFlow"
+                   TargetType="{x:Type FrameworkElement}">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Calibration.DeviceType}" Value="{x:Static audio:MeasurementType.Flow}">
+                        <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
         <Grid>
             <Border Background="Black" 
                     Opacity="0.75" />
@@ -26,9 +48,43 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Style="{StaticResource HeaderTextBlock}">
-                        Hello Everyone
+                    <TextBlock Style="{StaticResource ShowWhenVolume}"
+                               Margin="5"
+                               FontWeight="Bold">
+                        Calibrate Volume Device
                     </TextBlock>
+                    <TextBlock Style="{StaticResource ShowWhenFlow}"
+                               Margin="5"
+                               FontWeight="Bold">
+                        Calibrate Flow Device
+                    </TextBlock>
+                    
+                    <TextBlock Style="{StaticResource InfoTextBlock}"
+                               Grid.Row="1">
+                        Press spacebar or the 'record' button to begin recording audio from the device.
+                    </TextBlock>
+                    
+                    <ItemsControl Grid.Row="2"
+                                  Height="300"
+                                  ItemsSource="{Binding Calibration.WaveForm.Pairs}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:Pair}">
+                                <Line Stroke="Black"
+                                      StrokeThickness="1"
+                                      X1="{Binding First.Time}"
+                                      X2="{Binding Second.Time}"
+                                      Y1="{Binding First.Value}"
+                                      Y2="{Binding Second.Value}">
+                                    
+                                </Line>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </Grid>
             </Border>
         </Grid>

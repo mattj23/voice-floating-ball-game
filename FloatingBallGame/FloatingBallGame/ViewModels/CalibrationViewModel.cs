@@ -17,6 +17,8 @@ namespace FloatingBallGame.ViewModels
         public MeasurementType DeviceType { get; private set; }
         public IGameWavePrecursor Precursor { get; private set; }
         public IGameWaveProvider Provider { get; private set; }
+        public WaveformViewModel WaveForm { get; }
+
 
         public DelegateCommand ToggleRecordCommand { get; }
 
@@ -47,6 +49,7 @@ namespace FloatingBallGame.ViewModels
             this.ToggleRecordCommand = new DelegateCommand(ToggleRecording, o => !this.IsProcessing);
             this.IsRecording = false;
             this.IsProcessing = false;
+            this.WaveForm = new WaveformViewModel();
         }
 
         private void ToggleRecording(object o)
@@ -59,6 +62,7 @@ namespace FloatingBallGame.ViewModels
             else
             {
                 // Start recording
+                this.WaveForm.Clear();
                 this.Provider.SetMode(WaveMode.Calibration);
                 this.Provider.StartRecording();
             }
@@ -77,9 +81,56 @@ namespace FloatingBallGame.ViewModels
             this.DeviceType = deviceType;
         }
 
-        private void ProviderOnDataAvailable(object sender, WaveInEventArgs waveInEventArgs)
+        private void ProviderOnDataAvailable(object sender, WaveInEventArgs e)
         {
-            throw new NotImplementedException();
+            // We know that this is single channel audio
+
+            int bytesPerSample = this.Provider.WaveFormat.BitsPerSample / 8;
+
+            byte[] buffer = e.Buffer;
+            int frameCount = buffer.Length / bytesPerSample;
+            float[] floatBuffer = new float[frameCount];
+
+            int bytesRecorded = e.BytesRecorded;
+            WaveBuffer wbuffer = new WaveBuffer(buffer);
+
+            double squareSum = 0;
+            for (int i = 0; i < frameCount; i++)
+            {
+                int temp = (int)wbuffer.ShortBuffer[i];
+                float value = temp * 0.000030517578125f;
+                squareSum += value * value;
+                floatBuffer[i] = value;
+            }
+            double rms = Math.Sqrt(squareSum / frameCount);
+
+
+            /*
+             *  if (waveFormat.BitsPerSample == 16)
+                {
+                    sampleFrame[channel] = BitConverter.ToInt16(raw, offset)/32768f;
+                    offset += 2;
+                }
+                else if (waveFormat.BitsPerSample == 24)
+                {
+                    sampleFrame[channel] = (((sbyte)raw[offset + 2] << 16) | (raw[offset + 1] << 8) | raw[offset]) / 8388608f;
+                    offset += 3;
+                }
+                else if (waveFormat.BitsPerSample == 32 && waveFormat.Encoding == WaveFormatEncoding.IeeeFloat)
+                {
+                    sampleFrame[channel] = BitConverter.ToSingle(raw, offset);
+                    offset += 4;
+                }
+                else if (waveFormat.BitsPerSample == 32)
+                {
+                    sampleFrame[channel] = BitConverter.ToInt32(raw, offset) / (Int32.MaxValue + 1f);
+                    offset += 4;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unsupported bit depth");
+                }
+                */
         }
 
         [NotifyPropertyChangedInvocator]
@@ -89,3 +140,4 @@ namespace FloatingBallGame.ViewModels
         }
     }
 }
+ 

@@ -78,6 +78,7 @@
     <Compile Include="ViewModels\ProviderSelectionViewModel.cs" />
     <Compile Include="ViewModels\DialogInformation.cs" />
     <Compile Include="ViewModels\DialogViewModel.cs" />
+    <Compile Include="ViewModels\WaveformViewModel.cs" />
     <Compile Include="Views\CalibrationView.xaml.cs">
       <DependentUpon>CalibrationView.xaml</DependentUpon>
     </Compile>

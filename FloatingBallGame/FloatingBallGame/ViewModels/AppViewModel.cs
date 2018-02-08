@@ -84,7 +84,7 @@ namespace FloatingBallGame.ViewModels
             {
                 try
                 {
-                    this.SampleProviders.Add(SampleGameWaveProvider.Create(configData));
+                    this.SampleProviders.Add(new SampleGameWaveProvider(configData, this.AppSettings));
                 }
                 catch (Exception e)
                 {

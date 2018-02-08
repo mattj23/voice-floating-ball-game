@@ -58,6 +58,8 @@ namespace FloatingBallGame.Audio
                 _activeReader = _playingReader;
 
             this.WaveFormat = _activeReader.WaveFormat;
+            if (WaveFormat.Channels > 1)
+                throw new ArgumentException("Use single channel audio!");
             _bytesPerBuffer = WaveFormat.AverageBytesPerSecond * _settings.BufferMs / 1000;
             _data = new byte[_bytesPerBuffer];
 
