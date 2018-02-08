@@ -78,13 +78,26 @@ namespace FloatingBallGame.ViewModels
         {
             // Unsubscribe
             if (this.Provider != null)
+            {
+                this.Provider.RecordingStopped -= ProviderOnRecordingStopped;
                 this.Provider.DataAvailable -= ProviderOnDataAvailable;
+            }
 
             this.Precursor = precursor;
             this.Provider = precursor.ToProvider();
             this.Provider.DataAvailable += ProviderOnDataAvailable;
+            this.Provider.RecordingStopped += ProviderOnRecordingStopped;
 
             this.DeviceType = deviceType;
+        }
+
+        private void ProviderOnRecordingStopped(object sender, StoppedEventArgs stoppedEventArgs)
+        {
+            this.IsRecording = false;
+            if (this.WaveForm.Values.Count > 3000 / AppViewModel.Global.AppSettings.BufferMs)
+            {
+                this.ProcessData();
+            }
         }
 
         private void ProviderOnDataAvailable(object sender, WaveInEventArgs e)
@@ -134,49 +147,24 @@ namespace FloatingBallGame.ViewModels
             _tick += AppViewModel.Global.AppSettings.BufferMs;
             var sampleValue = sampleBuffer.Max();
             this.WaveForm.AddSample(_tick, sampleValue);
+        }
 
+        private void ProcessData()
+        {
+            var values = this.WaveForm.Values.ToList();
+            values.Sort();
 
-            /*
-            int bytesRecorded = e.BytesRecorded;
-            WaveBuffer wbuffer = new WaveBuffer(buffer);
-
-            double squareSum = 0;
-            for (int i = 0; i < sampleCount; i++)
+            int steps = 100;
+            Tuple<double, int>[] density = new Tuple<double, int>[steps];
+            double span = 1.0 / steps;
+            for (int i = 1; i < steps; i++)
             {
-                int temp = (int)wbuffer.ShortBuffer[i];
-                float value = temp * 0.000030517578125f;
-                squareSum += value * value;
-                sampleBuffer[i] = value;
+                double center = span * i;
+                int count = values.Count(x => Math.Abs(x - center) < span);
+                density[i] = Tuple.Create(center, count);
             }
-            double rms = Math.Sqrt(squareSum / sampleCount);
-            */
+            var sortedDensity = density.OrderByDescending(o => o.Item2).ToList();
 
-            /*
-             *  if (waveFormat.BitsPerSample == 16)
-                {
-                    sampleFrame[channel] = BitConverter.ToInt16(raw, offset)/32768f;
-                    offset += 2;
-                }
-                else if (waveFormat.BitsPerSample == 24)
-                {
-                    sampleFrame[channel] = (((sbyte)raw[offset + 2] << 16) | (raw[offset + 1] << 8) | raw[offset]) / 8388608f;
-                    offset += 3;
-                }
-                else if (waveFormat.BitsPerSample == 32 && waveFormat.Encoding == WaveFormatEncoding.IeeeFloat)
-                {
-                    sampleFrame[channel] = BitConverter.ToSingle(raw, offset);
-                    offset += 4;
-                }
-                else if (waveFormat.BitsPerSample == 32)
-                {
-                    sampleFrame[channel] = BitConverter.ToInt32(raw, offset) / (Int32.MaxValue + 1f);
-                    offset += 4;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Unsupported bit depth");
-                }
-                */
         }
 
         [NotifyPropertyChangedInvocator]
