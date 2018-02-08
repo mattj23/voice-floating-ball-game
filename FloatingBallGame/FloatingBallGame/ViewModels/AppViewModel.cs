@@ -46,6 +46,8 @@ namespace FloatingBallGame.ViewModels
 
         public JsonSerializerSettings JsonSettings { get; set; }
 
+        public CalibrationStore SavedCalibrations { get; private set; }
+
         public ObservableCollection<IGameWaveProvider> SampleProviders { get; set; }
 
         private AppViewModel()
@@ -55,6 +57,16 @@ namespace FloatingBallGame.ViewModels
             this.Dialog = new DialogViewModel();
             this.Audio = new AudioProcessor();
             this.Calibration = new CalibrationViewModel();
+
+            try
+            {
+                this.SavedCalibrations =
+                    JsonConvert.DeserializeObject<CalibrationStore>(File.ReadAllText("calibrations.json"));
+            }
+            catch (Exception e)
+            {
+                this.SavedCalibrations = new CalibrationStore();
+            }
             
             // Json contract resolver
             var contractResolver = new DefaultContractResolver {NamingStrategy = new SnakeCaseNamingStrategy()};

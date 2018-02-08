@@ -80,6 +80,8 @@
     <Compile Include="Tools\DelegateCommand.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\AudioProcessor.cs" />
+    <Compile Include="ViewModels\CalibrationData.cs" />
+    <Compile Include="ViewModels\CalibrationStore.cs" />
     <Compile Include="ViewModels\CalibrationViewModel.cs" />
     <Compile Include="ViewModels\ProviderSelectionViewModel.cs" />
     <Compile Include="ViewModels\DialogInformation.cs" />

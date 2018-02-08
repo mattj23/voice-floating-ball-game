@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 using FloatingBallGame.Annotations;
 using FloatingBallGame.Audio;
 using FloatingBallGame.Tools;
@@ -18,6 +19,9 @@ namespace FloatingBallGame.ViewModels
         private int _tick;
         private WaveFormat _waveFormat;
         private bool _isProcessed;
+        private double _mode1Value;
+        private double _mode2Value;
+        private double _mode3Value;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public MeasurementType DeviceType { get; private set; }
@@ -25,8 +29,42 @@ namespace FloatingBallGame.ViewModels
         public IGameWaveProvider Provider { get; private set; }
         public WaveformViewModel WaveForm { get; }
 
-        
+        public double Mode1Value
+        {
+            get { return _mode1Value; }
+            set
+            {
+                if (value.Equals(_mode1Value)) return;
+                _mode1Value = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double Mode2Value
+        {
+            get { return _mode2Value; }
+            set
+            {
+                if (value.Equals(_mode2Value)) return;
+                _mode2Value = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double Mode3Value
+        {
+            get { return _mode3Value; }
+            set
+            {
+                if (value.Equals(_mode3Value)) return;
+                _mode3Value = value;
+                OnPropertyChanged();
+            }
+        }
+
         public DelegateCommand ToggleRecordCommand { get; }
+        public DelegateCommand AcceptCalibrationCommand { get; }
+        public DelegateCommand CancelCalibrationCommand { get; }
 
         public bool IsRecording
         {
@@ -64,13 +102,49 @@ namespace FloatingBallGame.ViewModels
         public CalibrationViewModel()
         {
             this.ToggleRecordCommand = new DelegateCommand(ToggleRecording, o => !this.IsProcessing);
+            this.CancelCalibrationCommand = new DelegateCommand(CancelCalibration);
+            this.AcceptCalibrationCommand = new DelegateCommand(AcceptCalibration);
+
             this.IsRecording = false;
             this.IsProcessing = false;
             this.WaveForm = new WaveformViewModel();
         }
 
+        private void AcceptCalibration(object o)
+        {
+            var calibration = new CalibrationData
+            {
+                Id = Precursor.Id,
+                Type = DeviceType,
+                Measured = new List<double> { WaveForm.Mode1, WaveForm.Mode2, WaveForm.Mode3},
+                Actual = new List<double> { this.Mode1Value, this.Mode2Value, this.Mode3Value},
+                Created = DateTime.Now
+            };
+
+            AppViewModel.Global.SavedCalibrations.Add(calibration);
+            AppViewModel.Global.SavedCalibrations.Serialize();
+            
+            this.Clear();
+            AppViewModel.Global.Mode = AppMode.Loading;
+        }
+
+        private void CancelCalibration(object o)
+        {
+            this.Clear();
+            AppViewModel.Global.Mode = AppMode.Loading;
+        }
+
+        private void Clear()
+        {
+            this.Precursor = null;
+            this.IsProcessed = false;
+            this.IsRecording = false;
+            this.WaveForm.Clear();
+        }
+
         private void ToggleRecording(object o)
         {
+            this.IsProcessed = false;
             if (this.IsRecording)
             {
                 // stop recording and start processing
@@ -165,7 +239,21 @@ namespace FloatingBallGame.ViewModels
 
         private void ProcessData()
         {
-            this.WaveForm.Process(this.DeviceType);
+            try
+            {
+                this.IsProcessing = true;
+                this.WaveForm.Process(this.DeviceType);
+                this.IsProcessed = true;
+            }
+            catch (Exception e)
+            {
+                AppViewModel.Global.Dialog.ShowOkOnly("Error processing waveform", "Error extracting calibration signals from waveform, try again please.", null, new SolidColorBrush(Colors.LightCoral));
+            }
+            finally
+            {
+                this.IsProcessing = false;
+            }
+            
         }
 
         [NotifyPropertyChangedInvocator]
