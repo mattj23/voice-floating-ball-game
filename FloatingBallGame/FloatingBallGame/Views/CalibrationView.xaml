@@ -64,27 +64,54 @@
                         Press spacebar or the 'record' button to begin recording audio from the device.
                     </TextBlock>
                     
-                    <ItemsControl Grid.Row="2"
-                                  Height="300"
-                                  ItemsSource="{Binding Calibration.WaveForm.Pairs}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type vm:Pair}">
-                                <Line Stroke="Black"
-                                      StrokeThickness="1"
-                                      X1="{Binding First.Time}"
-                                      X2="{Binding Second.Time}"
-                                      Y1="{Binding First.Value}"
-                                      Y2="{Binding Second.Value}">
-                                    
-                                </Line>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <Border Grid.Row="2"
+                            Height="300"
+                            BorderBrush="Black"
+                            BorderThickness="1">
+
+                        <ItemsControl ItemsSource="{Binding Calibration.WaveForm.Pairs}">
+                            <ItemsControl.RenderTransform>
+                                <ScaleTransform ScaleX="0.5" />
+                            </ItemsControl.RenderTransform>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas>
+
+                                    </Canvas>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:Pair}">
+                                    <Line Stroke="Black"
+                                          StrokeThickness="1"
+                                          X1="{Binding First.Time}"
+                                          X2="{Binding Second.Time}"
+                                          Y1="{Binding First.Value}"
+                                          Y2="{Binding Second.Value}">
+
+                                    </Line>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+
+                    
+                    
+                    <Button Grid.Row="3"
+                            Command="{Binding Calibration.ToggleRecordCommand}">
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="Start Recording" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Calibration.IsRecording}" Value="True">
+                                            <Setter Property="Text" Value="Stop Recording" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Button>
                 </Grid>
             </Border>
         </Grid>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using FloatingBallGame.Annotations;
 using FloatingBallGame.Audio;
@@ -12,6 +13,8 @@ namespace FloatingBallGame.ViewModels
     {
         private bool _isRecording;
         private bool _isProcessing;
+        private int _tick;
+        private WaveFormat _waveFormat;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public MeasurementType DeviceType { get; private set; }
@@ -64,6 +67,9 @@ namespace FloatingBallGame.ViewModels
                 // Start recording
                 this.WaveForm.Clear();
                 this.Provider.SetMode(WaveMode.Calibration);
+                this.IsRecording = true;
+                _waveFormat = null;
+                _tick = 0;
                 this.Provider.StartRecording();
             }
         }
@@ -83,27 +89,67 @@ namespace FloatingBallGame.ViewModels
 
         private void ProviderOnDataAvailable(object sender, WaveInEventArgs e)
         {
+            if (_waveFormat == null)
+                _waveFormat = this.Provider.WaveFormat;
+
             // We know that this is single channel audio
 
-            int bytesPerSample = this.Provider.WaveFormat.BitsPerSample / 8;
+            int bytesPerSample = _waveFormat.BitsPerSample / 8;
 
             byte[] buffer = e.Buffer;
-            int frameCount = buffer.Length / bytesPerSample;
-            float[] floatBuffer = new float[frameCount];
+            int sampleCount = buffer.Length / bytesPerSample;
+            float[] sampleBuffer = new float[sampleCount];
 
+            int offset = 0;
+            int count = 0;
+            while (count < sampleCount)
+            {
+                if (_waveFormat.BitsPerSample == 16)
+                {
+                    sampleBuffer[count] = BitConverter.ToInt16(buffer, offset) / 32768f;
+                    offset += 2;
+                }
+                else if (_waveFormat.BitsPerSample == 24)
+                {
+                    sampleBuffer[count] = (((sbyte)buffer[offset + 2] << 16) | (buffer[offset + 1] << 8) | buffer[offset]) / 8388608f;
+                    offset += 3;
+                }
+                else if (_waveFormat.BitsPerSample == 32 && _waveFormat.Encoding == WaveFormatEncoding.IeeeFloat)
+                {
+                    sampleBuffer[count] = BitConverter.ToSingle(buffer, offset);
+                    offset += 4;
+                }
+                else if (_waveFormat.BitsPerSample == 32)
+                {
+                    sampleBuffer[count] = BitConverter.ToInt32(buffer, offset) / (Int32.MaxValue + 1f);
+                    offset += 4;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unsupported bit depth");
+                }
+                count++;
+            }
+
+            _tick += AppViewModel.Global.AppSettings.BufferMs;
+            var sampleValue = sampleBuffer.Max();
+            this.WaveForm.AddSample(new Sample(_tick, sampleValue));
+
+
+            /*
             int bytesRecorded = e.BytesRecorded;
             WaveBuffer wbuffer = new WaveBuffer(buffer);
 
             double squareSum = 0;
-            for (int i = 0; i < frameCount; i++)
+            for (int i = 0; i < sampleCount; i++)
             {
                 int temp = (int)wbuffer.ShortBuffer[i];
                 float value = temp * 0.000030517578125f;
                 squareSum += value * value;
-                floatBuffer[i] = value;
+                sampleBuffer[i] = value;
             }
-            double rms = Math.Sqrt(squareSum / frameCount);
-
+            double rms = Math.Sqrt(squareSum / sampleCount);
+            */
 
             /*
              *  if (waveFormat.BitsPerSample == 16)
