@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,10 +12,12 @@ namespace FloatingBallGame.ViewModels
 {
     public class CalibrationViewModel : INotifyPropertyChanged
     {
+        private List<double> _sampleBuffer = new List<double>();
         private bool _isRecording;
         private bool _isProcessing;
         private int _tick;
         private WaveFormat _waveFormat;
+        private bool _isProcessed;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public MeasurementType DeviceType { get; private set; }
@@ -22,7 +25,7 @@ namespace FloatingBallGame.ViewModels
         public IGameWaveProvider Provider { get; private set; }
         public WaveformViewModel WaveForm { get; }
 
-
+        
         public DelegateCommand ToggleRecordCommand { get; }
 
         public bool IsRecording
@@ -43,6 +46,17 @@ namespace FloatingBallGame.ViewModels
             {
                 if (value == _isProcessing) return;
                 _isProcessing = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsProcessed
+        {
+            get { return _isProcessed; }
+            private set
+            {
+                if (value == _isProcessed) return;
+                _isProcessed = value;
                 OnPropertyChanged();
             }
         }
@@ -147,24 +161,13 @@ namespace FloatingBallGame.ViewModels
             _tick += AppViewModel.Global.AppSettings.BufferMs;
             var sampleValue = sampleBuffer.Max();
             this.WaveForm.AddSample(_tick, sampleValue);
+
+           
         }
 
         private void ProcessData()
         {
-            var values = this.WaveForm.Values.ToList();
-            values.Sort();
-
-            int steps = 100;
-            Tuple<double, int>[] density = new Tuple<double, int>[steps];
-            double span = 1.0 / steps;
-            for (int i = 1; i < steps; i++)
-            {
-                double center = span * i;
-                int count = values.Count(x => Math.Abs(x - center) < span);
-                density[i] = Tuple.Create(center, count);
-            }
-            var sortedDensity = density.OrderByDescending(o => o.Item2).ToList();
-
+            this.WaveForm.Process(this.DeviceType);
         }
 
         [NotifyPropertyChangedInvocator]

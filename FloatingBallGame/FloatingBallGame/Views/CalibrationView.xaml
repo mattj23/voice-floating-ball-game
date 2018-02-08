@@ -104,7 +104,9 @@
                             <lvc:CartesianChart.AxisY>
                                 <lvc:Axis>
                                     <lvc:Axis.Sections>
-                                        <lvc:AxisSection Value="0" StrokeThickness="3" Stroke="#303030"></lvc:AxisSection>
+                                        <lvc:AxisSection Value="{Binding Calibration.WaveForm.Mode1}" StrokeThickness="3" Stroke="Red"></lvc:AxisSection>
+                                        <lvc:AxisSection Value="{Binding Calibration.WaveForm.Mode2}" StrokeThickness="3" Stroke="Red"></lvc:AxisSection>
+                                        <lvc:AxisSection Value="{Binding Calibration.WaveForm.Mode3}" StrokeThickness="3" Stroke="Red"></lvc:AxisSection>
                                     </lvc:Axis.Sections>
                                 </lvc:Axis>
                             </lvc:CartesianChart.AxisY>

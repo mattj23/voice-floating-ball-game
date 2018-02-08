@@ -6,32 +6,24 @@ namespace FloatingBallGame.Audio
 {
     public class SampleGameWaveProvider : IGameWaveProvider, IGameWavePrecursor
     {
-        private WaveFileReader _calibrationReader;
-        private WaveFileReader _playingReader;
-
-        private DispatcherTimer _timer;
-        private ApplicationSettings _settings;
+        private readonly SampleProviderConfigData _configData;
+        private readonly DispatcherTimer _timer;
+        private readonly ApplicationSettings _settings;
         private int _bytesPerBuffer = 0;
         private byte[] _data;
         private WaveFileReader _activeReader;
 
-        public SampleGameWaveProvider(SampleProviderConfigData configData, ApplicationSettings settings) :
-            this(configData.Name, configData.ConfigReader(), configData.PlayingReader(), configData.Id, settings)
+        public SampleGameWaveProvider(SampleProviderConfigData configData, ApplicationSettings settings)
         {
+            this.Name = configData.Name;
 
-        }
-
-        public SampleGameWaveProvider(string name, WaveFileReader calibrationReader, WaveFileReader playingReader, Guid id, ApplicationSettings settings)
-        {
-            this.Name = name;
-            _calibrationReader = calibrationReader;
-            _playingReader = playingReader;
-            this.Id = id;
-
+            this.Id = configData.Id;
+            _configData = configData;
             _settings = settings;
-            _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(_settings.BufferMs)};
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_settings.BufferMs) };
             _timer.Tick += TimerOnTick;
         }
+
 
         private void TimerOnTick(object sender, EventArgs eventArgs)
         {
@@ -53,9 +45,15 @@ namespace FloatingBallGame.Audio
  
             // Load the byte array
             if (this.Mode == WaveMode.Calibration)
-                _activeReader = _calibrationReader;
+            {
+                _timer.Interval = TimeSpan.FromMilliseconds(1);
+                _activeReader = _configData.CalibrationReader();
+            }
             else
-                _activeReader = _playingReader;
+            {
+                _timer.Interval = TimeSpan.FromMilliseconds(_settings.BufferMs);
+                _activeReader = _configData.PlayingReader();
+            }
 
             this.WaveFormat = _activeReader.WaveFormat;
             if (WaveFormat.Channels > 1)
