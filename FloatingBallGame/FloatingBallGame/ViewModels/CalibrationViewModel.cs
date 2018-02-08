@@ -161,8 +161,6 @@ namespace FloatingBallGame.ViewModels
             _tick += AppViewModel.Global.AppSettings.BufferMs;
             var sampleValue = sampleBuffer.Max();
             this.WaveForm.AddSample(_tick, sampleValue);
-
-           
         }
 
         private void ProcessData()

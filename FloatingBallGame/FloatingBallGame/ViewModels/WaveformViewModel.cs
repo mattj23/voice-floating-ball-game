@@ -76,6 +76,9 @@ namespace FloatingBallGame.ViewModels
             this.Values.Clear();
             this.MaxTime = 0;
             this.MaxValue = 0;
+            this.Mode1 = 0;
+            this.Mode2 = 0;
+            this.Mode3 = 0;
         }
 
 
@@ -93,11 +96,6 @@ namespace FloatingBallGame.ViewModels
                 int count = values.Count(x => Math.Abs(x - center) < span);
                 density[i] = Tuple.Create(center, count);
             }
-
-            foreach (var tuple in density)
-            {
-                Debug.WriteLine($"{tuple.Item1}\t{tuple.Item2}");
-            }
             
             // Now we'll sweep through the density curve, finding places where the curve jumps from below 50% to above 50%, then
             // back down to below 50%.
@@ -105,7 +103,7 @@ namespace FloatingBallGame.ViewModels
             bool isAbove = false;
             double risingEdge = Double.NaN;
             int thresh = density.Select(x => x.Item2).Max() / 2;
-            for (int i = 1; i < density.Length; i++)
+            for (int i = 0; i < density.Length; i++)
             {
                 int count = density[i].Item2;
 
@@ -128,16 +126,19 @@ namespace FloatingBallGame.ViewModels
 
             var sortedPeaks = peaks.OrderByDescending(x => x).ToList();
 
-            /*
-            this.Values.Clear();
-            foreach (var tuple in density)
+            if (measurement == MeasurementType.Flow)
             {
-                this.Values.Add(tuple.Item2);
-            }*/
-
-            this.Mode1 = sortedPeaks[0];
-            this.Mode2 = sortedPeaks[1];
-           // this.Mode3 = sortedPeaks[2];
+                this.Mode1 = sortedPeaks[0];
+                this.Mode2 = sortedPeaks[1];
+                this.Mode3 = 0;
+            }
+            else
+            {
+                this.Mode1 = sortedPeaks[0];
+                this.Mode2 = sortedPeaks[1];
+                this.Mode3 = sortedPeaks[2];
+            }
+            
         }
 
 
