@@ -115,7 +115,7 @@
                         Margin="5"
                         Grid.Column="0"
                         Grid.ColumnSpan="2"
-                        Click="BeginButtonClicked">
+                        Command="{Binding Config.BeginGameCommand}">
                     <TextBlock Margin="20 5">
                         Begin Game
                     </TextBlock>

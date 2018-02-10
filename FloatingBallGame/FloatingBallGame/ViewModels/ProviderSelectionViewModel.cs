@@ -8,6 +8,7 @@ using System.Security.Policy;
 using System.Windows.Threading;
 using FloatingBallGame.Annotations;
 using FloatingBallGame.Audio;
+using FloatingBallGame.Tools;
 using NAudio.Wave;
 
 namespace FloatingBallGame.ViewModels
@@ -18,6 +19,8 @@ namespace FloatingBallGame.ViewModels
         private IGameWavePrecursor _flowDevice;
         private CalibrationData _volumeCalibration;
         private CalibrationData _flowCalibration;
+
+        public DelegateCommand BeginGameCommand { get; }
 
         public IGameWavePrecursor VolumeDevice
         {
@@ -49,6 +52,7 @@ namespace FloatingBallGame.ViewModels
                 if (Equals(value, _volumeCalibration)) return;
                 _volumeCalibration = value;
                 OnPropertyChanged();
+                BeginGameCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -60,6 +64,7 @@ namespace FloatingBallGame.ViewModels
                 if (Equals(value, _flowCalibration)) return;
                 _flowCalibration = value;
                 OnPropertyChanged();
+                BeginGameCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -72,6 +77,13 @@ namespace FloatingBallGame.ViewModels
             var checkTimer = new DispatcherTimer {Interval = TimeSpan.FromSeconds(1)};
             checkTimer.Tick += CheckTimerOnTick;
             checkTimer.Start();
+
+            this.BeginGameCommand = new DelegateCommand(BeginGame, o => FlowCalibration != null && VolumeCalibration != null);
+        }
+
+        private void BeginGame(object o)
+        {
+            AppViewModel.Global.Mode = AppMode.Playing;
         }
 
         /// <summary>
