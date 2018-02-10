@@ -124,21 +124,18 @@ namespace FloatingBallGame.ViewModels
             if (isAbove)
                 peaks.Add(risingEdge);
 
-            var sortedPeaks = peaks.OrderByDescending(x => x).ToList();
+            var sortedPeaks = peaks.OrderByDescending(x => x).Select(x => ResolvePeak(x, span*2)).ToList();
 
-            if (measurement == MeasurementType.Flow)
-            {
-                this.Mode1 = sortedPeaks[0];
-                this.Mode2 = sortedPeaks[1];
-                this.Mode3 = 0;
-            }
-            else
-            {
-                this.Mode1 = sortedPeaks[0];
-                this.Mode2 = sortedPeaks[1];
-                this.Mode3 = sortedPeaks[2];
-            }
+            this.Mode1 = sortedPeaks[0];
+            this.Mode2 = sortedPeaks[1];
+            this.Mode3 = sortedPeaks[2];
             
+        }
+
+        private double ResolvePeak(double peak, double span)
+        {
+            var includedPoints = this.Values.Where(x => Math.Abs(peak - x) < span);
+            return includedPoints.Average();
         }
 
 

@@ -77,6 +77,7 @@
     <Compile Include="Audio\MeasurementType.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ApplicationSettings.cs" />
+    <Compile Include="Tools\Processing.cs" />
     <Compile Include="Tools\DelegateCommand.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\AudioProcessor.cs" />

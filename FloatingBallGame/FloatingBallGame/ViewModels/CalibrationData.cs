@@ -18,6 +18,7 @@ namespace FloatingBallGame.ViewModels
         public List<double> Actual{ get; set; }
 
         public DateTime Created { get; set; }
+
         public CalibrationData()
         {
             this.Measured = new List<double>();

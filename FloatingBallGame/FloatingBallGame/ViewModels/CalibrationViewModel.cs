@@ -193,47 +193,7 @@ namespace FloatingBallGame.ViewModels
             if (_waveFormat == null)
                 _waveFormat = this.Provider.WaveFormat;
 
-            // We know that this is single channel audio
-
-            int bytesPerSample = _waveFormat.BitsPerSample / 8;
-
-            byte[] buffer = e.Buffer;
-            int sampleCount = buffer.Length / bytesPerSample;
-            float[] sampleBuffer = new float[sampleCount];
-
-            int offset = 0;
-            int count = 0;
-            while (count < sampleCount)
-            {
-                if (_waveFormat.BitsPerSample == 16)
-                {
-                    sampleBuffer[count] = BitConverter.ToInt16(buffer, offset) / 32768f;
-                    offset += 2;
-                }
-                else if (_waveFormat.BitsPerSample == 24)
-                {
-                    sampleBuffer[count] = (((sbyte)buffer[offset + 2] << 16) | (buffer[offset + 1] << 8) | buffer[offset]) / 8388608f;
-                    offset += 3;
-                }
-                else if (_waveFormat.BitsPerSample == 32 && _waveFormat.Encoding == WaveFormatEncoding.IeeeFloat)
-                {
-                    sampleBuffer[count] = BitConverter.ToSingle(buffer, offset);
-                    offset += 4;
-                }
-                else if (_waveFormat.BitsPerSample == 32)
-                {
-                    sampleBuffer[count] = BitConverter.ToInt32(buffer, offset) / (Int32.MaxValue + 1f);
-                    offset += 4;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Unsupported bit depth");
-                }
-                count++;
-            }
-
-            _tick += AppViewModel.Global.AppSettings.BufferMs;
-            var sampleValue = sampleBuffer.Max();
+            var sampleValue = Processing.RmsValue(e.Buffer, _waveFormat);
             this.WaveForm.AddSample(_tick, sampleValue);
         }
 
