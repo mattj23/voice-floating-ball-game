@@ -70,8 +70,10 @@
                             Width="75">
                         <TextBlock> Calibrate</TextBlock>
                     </Button>
-                    <TextBlock VerticalAlignment="Center" 
-                               Text="{Binding Config.VolumeDevice.Id}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Config.VolumeCalibration.ShortId, StringFormat='({0})'}" />
+                        <TextBlock Text="{Binding Config.VolumeCalibration.Created}" />
+                    </StackPanel>
                 </DockPanel>
                 
                 <TextBlock Grid.Row="4"
@@ -98,11 +100,14 @@
                            Grid.Column="1"
                            Margin="5">
                     <Button DockPanel.Dock="Right"
+                            Click="CalibrateFlowDevice"
                             Width="75">
                         <TextBlock> Calibrate</TextBlock>
                     </Button>
-                    <TextBlock VerticalAlignment="Center" 
-                               Text="{Binding Config.FlowDevice.Id}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Config.FlowCalibration.ShortId, StringFormat='({0})'}" />
+                        <TextBlock Text="{Binding Config.FlowCalibration.Created}" />
+                    </StackPanel>
                 </DockPanel>
 
 

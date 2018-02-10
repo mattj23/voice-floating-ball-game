@@ -163,17 +163,14 @@
                         </Label>
                         <TextBox Grid.Row="0"
                                  Grid.Column="1"
-                                 Text="{Binding Calibration.Mode1Value}" />
+                                 Text="{Binding Calibration.Mode1Value, StringFormat='0.0'}" />
                         <TextBox Grid.Row="1"
                                  Grid.Column="1"
-                                 Text="{Binding Calibration.Mode2Value}" />
+                                 Text="{Binding Calibration.Mode2Value, StringFormat='0.0'}" />
                         <TextBox Grid.Row="2"
                                  Grid.Column="1"
-                                 Text="{Binding Calibration.Mode3Value}" />
+                                 Text="{Binding Calibration.Mode3Value, StringFormat='0.0'}" />
                     </Grid>
-                    
-                    
-
                     
                     <StackPanel Grid.Row="5"
                                 Margin="5"

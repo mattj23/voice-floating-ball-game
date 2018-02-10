@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using System.Windows.Threading;
 using FloatingBallGame.Annotations;
 using FloatingBallGame.Audio;
@@ -15,6 +16,8 @@ namespace FloatingBallGame.ViewModels
     {
         private IGameWavePrecursor _volumeDevice;
         private IGameWavePrecursor _flowDevice;
+        private CalibrationData _volumeCalibration;
+        private CalibrationData _flowCalibration;
 
         public IGameWavePrecursor VolumeDevice
         {
@@ -34,6 +37,28 @@ namespace FloatingBallGame.ViewModels
             {
                 if (value.Equals(_flowDevice)) return;
                 _flowDevice = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public CalibrationData VolumeCalibration
+        {
+            get { return _volumeCalibration; }
+            private set
+            {
+                if (Equals(value, _volumeCalibration)) return;
+                _volumeCalibration = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public CalibrationData FlowCalibration
+        {
+            get { return _flowCalibration; }
+            private set
+            {
+                if (Equals(value, _flowCalibration)) return;
+                _flowCalibration = value;
                 OnPropertyChanged();
             }
         }
@@ -91,7 +116,33 @@ namespace FloatingBallGame.ViewModels
             {
                 this.Devices.Remove(device);
             }
+
+            // Assign devices
+            if (this.VolumeDevice == null && this.Devices.Any())
+                this.VolumeDevice = this.Devices.First();
+            if (this.FlowDevice == null && this.Devices.Any())
+                this.FlowDevice = this.Devices.First();
+
+            if (this.VolumeDevice != null)
+                this.VolumeCalibration = CheckForCalibration(VolumeDevice, MeasurementType.Volume);
+            else
+                this.VolumeCalibration = null;
+
+            if (this.FlowDevice != null)
+                this.FlowCalibration = CheckForCalibration(FlowDevice, MeasurementType.Flow);
+            else
+                this.FlowCalibration = null;
         }
+
+
+        private CalibrationData CheckForCalibration(IGameWavePrecursor precursor, MeasurementType measurement)
+        {
+            var calibration =
+                AppViewModel.Global.SavedCalibrations.Data.FirstOrDefault(x =>
+                    x.Id == precursor.Id && x.Type == measurement);
+            return calibration;
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

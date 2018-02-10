@@ -36,5 +36,10 @@ namespace FloatingBallGame.Views
         {
             AppViewModel.Global.CalibrateDevice(AppViewModel.Global.Config.VolumeDevice, MeasurementType.Volume);
         }
+
+        private void CalibrateFlowDevice(object sender, RoutedEventArgs e)
+        {
+            AppViewModel.Global.CalibrateDevice(AppViewModel.Global.Config.FlowDevice, MeasurementType.Flow);
+        }
     }
 }
