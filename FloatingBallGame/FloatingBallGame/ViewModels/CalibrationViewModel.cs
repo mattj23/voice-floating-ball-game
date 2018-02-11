@@ -136,6 +136,12 @@ namespace FloatingBallGame.ViewModels
 
         private void Clear()
         {
+            if (this.Provider != null)
+            {
+                this.Provider.RecordingStopped -= ProviderOnRecordingStopped;
+                this.Provider.DataAvailable -= ProviderOnDataAvailable;
+                this.Provider = null;
+            }
             this.Precursor = null;
             this.IsProcessed = false;
             this.IsRecording = false;

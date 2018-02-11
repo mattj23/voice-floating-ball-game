@@ -13,6 +13,15 @@
       "id": "c22914a8-2490-4467-8779-f12d050b630a"
     }
   ],
+
   "sample_rate": 22050,
-  "buffer_ms": 50 
+  "buffer_ms": 50,
+
+  // Ball position is according to the following equation, which can be tuned with the four
+  // parameters given below
+  // flow_scale * (flow + flow_offset) + amplitude * volume * cos(frequency * pi * time);
+  "flow_scale": -500,
+  "flow_offset": -0.03,
+  "amplitude": 1.0,
+  "frequency": 2.0
 }

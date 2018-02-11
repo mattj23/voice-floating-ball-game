@@ -26,6 +26,8 @@ namespace FloatingBallGame.ViewModels
         private Stopwatch _stopwatch;
         private double _ball;
 
+        private ApplicationSettings _settings;
+
         public double Volume
         {
             get => _volume;
@@ -59,8 +61,9 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
-        public AudioProcessor()
+        public AudioProcessor(ApplicationSettings settings)
         {
+            _settings = settings;
             _stopwatch = new Stopwatch();
         }
 
@@ -128,19 +131,13 @@ namespace FloatingBallGame.ViewModels
         private void UpdateBallPosition()
         {
             // 10*(flow-0.03) + 3*acc*cos(2*pi*2.0*i/60);
-
             double i = _stopwatch.ElapsedMilliseconds / 1000.0;
-            this.Ball = 100 * Math.Cos(2.0 * Math.PI * i);
+            this.Ball = _settings.FlowScale * (this.Flow + _settings.FlowOffset) + _settings.Amplitude * this.Volume * Math.Cos(_settings.Frequency * Math.PI * i);
 
             if (i >= 1.0)
             {
                 _stopwatch.Restart();
             }
-
-
-
-
-
         }
 
         private int GetDeviceNumber(WaveInCapabilities device)

@@ -52,12 +52,6 @@ namespace FloatingBallGame.ViewModels
 
         private AppViewModel()
         {
-            this.Mode = AppMode.Loading;
-            this.Config = new ProviderSelectionViewModel();
-            this.Dialog = new DialogViewModel();
-            this.Audio = new AudioProcessor();
-            this.Calibration = new CalibrationViewModel();
-
             try
             {
                 this.SavedCalibrations =
@@ -106,6 +100,12 @@ namespace FloatingBallGame.ViewModels
                         new SolidColorBrush(Colors.Yellow));
                 }
             }
+
+            this.Mode = AppMode.Loading;
+            this.Config = new ProviderSelectionViewModel();
+            this.Dialog = new DialogViewModel();
+            this.Audio = new AudioProcessor(this.AppSettings);
+            this.Calibration = new CalibrationViewModel();
         }
 
         public void ConfigureAndStart()
