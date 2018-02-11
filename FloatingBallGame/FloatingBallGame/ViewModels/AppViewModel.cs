@@ -113,7 +113,7 @@ namespace FloatingBallGame.ViewModels
             try
             {
                 this.Mode = AppMode.Playing;
-                // this.Audio.Configure(this.Config.VolumeDevice, this.Config.FlowDevice);
+                this.Audio.Configure();
             }
             catch (Exception e)
             {

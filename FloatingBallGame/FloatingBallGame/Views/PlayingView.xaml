@@ -32,35 +32,38 @@
                            Grid.Column="0"
                            Margin="7"
                            VerticalAlignment="Center">
-                    Volume Input Device
+                    Volume Input Device (dB)
                 </TextBlock>
                 
                 <ProgressBar Grid.Row="0"
-                             Grid.Column="1" />
+                             Grid.Column="1" 
+                             Minimum="0"
+                             Maximum="100"
+                             Value="{Binding Audio.Volume, Mode=OneWay}"/>
                 <TextBlock Grid.Row="0"
                            Grid.Column="1"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center"
-                           Text="{Binding Audio.Volume}" />
+                           Text="{Binding Audio.Volume, StringFormat=N1}" />
 
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
                            Margin="7"
                            VerticalAlignment="Center">
-                    Flow Input Device
+                    Flow Input Device (L/s)
                 </TextBlock>
 
 
                 <ProgressBar Grid.Row="1"
                              Grid.Column="1" 
                              Minimum="0"
-                             Maximum="0.037"
+                             Maximum="1"
                              Value="{Binding Audio.Flow, Mode=OneWay}"/>
                 <TextBlock Grid.Row="1"
                            Grid.Column="1"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center"
-                           Text="{Binding Audio.Flow}" />
+                           Text="{Binding Audio.Flow, StringFormat=N2}" />
             </Grid>
         </Border>
     </Grid>

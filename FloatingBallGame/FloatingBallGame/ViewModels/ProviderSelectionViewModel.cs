@@ -83,7 +83,7 @@ namespace FloatingBallGame.ViewModels
 
         private void BeginGame(object o)
         {
-            AppViewModel.Global.Mode = AppMode.Playing;
+            AppViewModel.Global.ConfigureAndStart();
         }
 
         /// <summary>

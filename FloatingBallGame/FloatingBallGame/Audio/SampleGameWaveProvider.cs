@@ -22,6 +22,14 @@ namespace FloatingBallGame.Audio
             _settings = settings;
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_settings.BufferMs) };
             _timer.Tick += TimerOnTick;
+
+            this.RecordingStopped += OnRecordingStopped;
+        }
+
+        private void OnRecordingStopped(object sender, StoppedEventArgs stoppedEventArgs)
+        {
+            if (this.Mode == WaveMode.Playing)
+                this.StartRecording();
         }
 
 

@@ -1,22 +1,31 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using FloatingBallGame.Annotations;
+using FloatingBallGame.Audio;
+using FloatingBallGame.Tools;
 using NAudio.Wave;
 
 namespace FloatingBallGame.ViewModels
 {
     public class AudioProcessor : INotifyPropertyChanged
     {
-        private IWaveIn _volumeWaveIn;
-        private IWaveIn _flowWaveIn;
+        private IGameWaveProvider _volumeProvider;
+        private IGameWaveProvider _flowProvider;
+        private WaveFormat _flowFormat;
+        private WaveFormat _volumeFormat;
+
+        private Func<double, double> _volumeConvert;
+        private Func<double, double> _flowConvert;
+
         private double _flow;
         private double _volume;
 
         public double Volume
         {
-            get { return _volume; }
-            set
+            get => _volume;
+            private set
             {
                 if (value.Equals(_volume)) return;
                 _volume = value;
@@ -26,8 +35,8 @@ namespace FloatingBallGame.ViewModels
 
         public double Flow
         {
-            get { return _flow; }
-            set
+            get => _flow;
+            private set
             {
                 if (value.Equals(_flow)) return;
                 _flow = value;
@@ -40,72 +49,61 @@ namespace FloatingBallGame.ViewModels
             
         }
 
-        public void Configure(WaveInCapabilities volumeDevice, WaveInCapabilities flowDevice)
+        public void Configure()
         {
-            _volumeWaveIn = new WaveIn
+            if (_volumeProvider != null)
             {
-                DeviceNumber = GetDeviceNumber(volumeDevice),
-                WaveFormat = new WaveFormat(22050, 1),
-                BufferMilliseconds = 50
-            };
-
-            _flowWaveIn = new WaveIn
+                _volumeProvider.DataAvailable -= VolumeProviderOnDataAvailable;
+            }
+            if (_flowProvider != null)
             {
-                DeviceNumber = GetDeviceNumber(flowDevice),
-                WaveFormat = new WaveFormat(22050, 1),
-                BufferMilliseconds = 100
-            };
+                _flowProvider.DataAvailable -= FlowProviderOnDataAvailable;
+            }
 
-            _volumeWaveIn.DataAvailable += VolumeWaveInOnDataAvailable;
-            _flowWaveIn.DataAvailable += FlowWaveInOnDataAvailable;
+            _volumeProvider = AppViewModel.Global.Config.VolumeDevice.ToProvider();
 
-            _volumeWaveIn.StartRecording();
-            _flowWaveIn.StartRecording();
+            // 20 * log10 (V_noise / V_ref) + dB_ref
+            double voltageRef = AppViewModel.Global.Config.VolumeCalibration.Measured.First();
+            double dbRef = AppViewModel.Global.Config.VolumeCalibration.Actual.First();
+            _volumeConvert = d => 20 * Math.Log10(d / voltageRef) + dbRef;
+
+            _flowProvider = AppViewModel.Global.Config.FlowDevice.ToProvider();
+
+            double[] ys = AppViewModel.Global.Config.FlowCalibration.Actual.ToArray();
+            double[] xs = AppViewModel.Global.Config.FlowCalibration.Measured.ToArray();
+            double m = (ys.First() - ys.Last()) / (xs.First() - xs.Last());
+            // y - k = m (x - h).
+            double b = m * (0 - xs.First()) + ys.First();
+            _flowConvert = d => m * d + b;
+
+            _volumeProvider.DataAvailable += VolumeProviderOnDataAvailable;
+            _flowProvider.DataAvailable += FlowProviderOnDataAvailable;
+
+            _flowFormat = null;
+            _volumeFormat = null;
+
+            _volumeProvider.SetMode(WaveMode.Playing);
+            _flowProvider.SetMode(WaveMode.Playing);
+
+            _volumeProvider.StartRecording();
+            _flowProvider.StartRecording();
+
         }
 
-        private void FlowWaveInOnDataAvailable(object sender, WaveInEventArgs e)
+        private void FlowProviderOnDataAvailable(object sender, WaveInEventArgs e)
         {
-            byte[] buffer = e.Buffer;
-            int frameCount = buffer.Length / 2;
-            float[] floatBuffer = new float[frameCount];
+            if (_flowFormat == null)
+                _flowFormat = _flowProvider.WaveFormat;
 
-            int bytesRecorded = e.BytesRecorded;
-            WaveBuffer wbuffer = new WaveBuffer(buffer);
-
-            double squareSum = 0;
-            for (int i = 0; i < frameCount; i++)
-            {
-                int temp = (int)wbuffer.ShortBuffer[i];
-                float value = temp * 0.000030517578125f;
-                squareSum += value * value;
-                floatBuffer[i] = value;
-            }
-            double rms = Math.Sqrt(squareSum / frameCount);
-
-            this.Flow = rms; // rms * 100;
+            this.Flow = _flowConvert.Invoke(Processing.RmsValue(e.Buffer, _flowFormat));
         }
 
-        private void VolumeWaveInOnDataAvailable(object sender, WaveInEventArgs e)
+        private void VolumeProviderOnDataAvailable(object sender, WaveInEventArgs e)
         {
-            byte[] buffer = e.Buffer;
-            int frameCount = buffer.Length / 2;
-            float[] floatBuffer = new float[frameCount];
+            if (_volumeFormat == null)
+                _volumeFormat = _volumeProvider.WaveFormat;
 
-            int bytesRecorded = e.BytesRecorded;
-            WaveBuffer wbuffer = new WaveBuffer(buffer);
-
-            double squareSum = 0;
-            for (int i = 0; i < frameCount; i++)
-            {
-                int temp = (int)wbuffer.ShortBuffer[i];
-                float value = temp * 0.000030517578125f;
-                squareSum += value * value;
-                floatBuffer[i] = value;
-            }
-            double rms = Math.Sqrt(squareSum / frameCount);
-
-            this.Volume = rms;
-            // this.Volume = 20 * Math.Log10(Volume);
+            this.Volume = _volumeConvert.Invoke(Processing.RmsValue(e.Buffer, _volumeFormat));
         }
 
         private int GetDeviceNumber(WaveInCapabilities device)
