@@ -14,6 +14,16 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         
+        <Ellipse Height="30"
+                 Width="30"
+                 Fill="Red"
+                 Stroke="Black">
+            <Ellipse.RenderTransform>
+                <TranslateTransform Y="{Binding Audio.Ball}" />
+            </Ellipse.RenderTransform>
+        </Ellipse>
+        
+        <!-- Information panel -->
         <Border Grid.Row="1"
                 BorderThickness="1"
                 BorderBrush="Black"

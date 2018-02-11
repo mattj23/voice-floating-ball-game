@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using FloatingBallGame.Annotations;
@@ -21,6 +22,9 @@ namespace FloatingBallGame.ViewModels
 
         private double _flow;
         private double _volume;
+
+        private Stopwatch _stopwatch;
+        private double _ball;
 
         public double Volume
         {
@@ -44,9 +48,20 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        public double Ball
+        {
+            get => _ball;
+            private set
+            {
+                if (value.Equals(_ball)) return;
+                _ball = value;
+                OnPropertyChanged();
+            }
+        }
+
         public AudioProcessor()
         {
-            
+            _stopwatch = new Stopwatch();
         }
 
         public void Configure()
@@ -87,6 +102,8 @@ namespace FloatingBallGame.ViewModels
 
             _volumeProvider.StartRecording();
             _flowProvider.StartRecording();
+            _stopwatch.Reset();
+            _stopwatch.Start();
 
         }
 
@@ -96,6 +113,7 @@ namespace FloatingBallGame.ViewModels
                 _flowFormat = _flowProvider.WaveFormat;
 
             this.Flow = _flowConvert.Invoke(Processing.RmsValue(e.Buffer, _flowFormat));
+            this.UpdateBallPosition();
         }
 
         private void VolumeProviderOnDataAvailable(object sender, WaveInEventArgs e)
@@ -104,6 +122,25 @@ namespace FloatingBallGame.ViewModels
                 _volumeFormat = _volumeProvider.WaveFormat;
 
             this.Volume = _volumeConvert.Invoke(Processing.RmsValue(e.Buffer, _volumeFormat));
+            this.UpdateBallPosition();
+        }
+
+        private void UpdateBallPosition()
+        {
+            // 10*(flow-0.03) + 3*acc*cos(2*pi*2.0*i/60);
+
+            double i = _stopwatch.ElapsedMilliseconds / 1000.0;
+            this.Ball = 100 * Math.Cos(2.0 * Math.PI * i);
+
+            if (i >= 1.0)
+            {
+                _stopwatch.Restart();
+            }
+
+
+
+
+
         }
 
         private int GetDeviceNumber(WaveInCapabilities device)
