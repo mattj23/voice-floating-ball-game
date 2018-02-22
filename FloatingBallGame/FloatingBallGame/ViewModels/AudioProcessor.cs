@@ -27,6 +27,8 @@ namespace FloatingBallGame.ViewModels
         private double _ball;
 
         private ApplicationSettings _settings;
+        private double _upperGoal;
+        private double _lowerGoal;
 
         public double Volume
         {
@@ -57,6 +59,28 @@ namespace FloatingBallGame.ViewModels
             {
                 if (value.Equals(_ball)) return;
                 _ball = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double UpperGoal
+        {
+            get => _upperGoal;
+            set
+            {
+                if (value.Equals(_upperGoal)) return;
+                _upperGoal = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double LowerGoal
+        {
+            get => _lowerGoal;
+            set
+            {
+                if (value.Equals(_lowerGoal)) return;
+                _lowerGoal = value;
                 OnPropertyChanged();
             }
         }
@@ -125,14 +149,27 @@ namespace FloatingBallGame.ViewModels
                 _volumeFormat = _volumeProvider.WaveFormat;
 
             this.Volume = _volumeConvert.Invoke(Processing.RmsValue(e.Buffer, _volumeFormat));
-            this.UpdateBallPosition();
+            // this.UpdateBallPosition();
         }
 
         private void UpdateBallPosition()
         {
+            // Ball position
             // 10*(flow-0.03) + 3*acc*cos(2*pi*2.0*i/60);
             double i = _stopwatch.ElapsedMilliseconds / 1000.0;
             this.Ball = _settings.FlowScale * (this.Flow + _settings.FlowOffset) + _settings.Amplitude * this.Volume * Math.Cos(_settings.Frequency * Math.PI * i);
+
+            // Error bar position
+            // centerbar = 10 * (flow - 0.03);
+            // goalbar = 3 * flow * 0.8;
+            // upperbar = centerbar + goalbar;
+            // lowerbar = centerbar - goalbar;
+            double cappedFlow = (this.Flow < _settings.ErrorBarCeiling) ? this.Flow : _settings.ErrorBarCeiling;
+            double center = _settings.FlowScale * (cappedFlow + _settings.FlowOffset);
+            double goal = _settings.Amplitude * cappedFlow * _settings.ErrorBarRatio;
+            this.UpperGoal = center + goal;
+            this.LowerGoal = center - goal;
+
 
             if (i >= 1.0)
             {

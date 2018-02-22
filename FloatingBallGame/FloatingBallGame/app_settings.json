@@ -14,6 +14,7 @@
     }
   ],
 
+  // Audio properties
   "sample_rate": 22050,
   "buffer_ms": 50,
 
@@ -23,5 +24,9 @@
   "flow_scale": -500,
   "flow_offset": -0.03,
   "amplitude": 1.0,
-  "frequency": 2.0
+  "frequency": 2.0,
+
+  // Error bar properties
+  "error_bar_ratio": 800, // error bar ratio 
+  "error_bar_ceiling": 0.1 // flow ceiling for error bar center
 }

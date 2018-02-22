@@ -17,5 +17,8 @@ namespace FloatingBallGame
         public double Frequency { get; set; }
         public double Amplitude { get; set; }
 
+
+        public double ErrorBarRatio { get; set; }
+        public double ErrorBarCeiling { get; set; }
     }
 }

@@ -23,6 +23,29 @@
             </Ellipse.RenderTransform>
         </Ellipse>
         
+        <Line X1="0" X2="50"
+              Y1="0" Y2="0"
+              StrokeThickness="3"
+              VerticalAlignment="Center"
+              HorizontalAlignment="Center"
+              Stroke="Black">
+            <Line.RenderTransform>
+                <TranslateTransform Y="{Binding Audio.UpperGoal}" />
+            </Line.RenderTransform>
+        </Line>
+
+
+        <Line X1="0" X2="50"
+              Y1="0" Y2="0"
+              StrokeThickness="3"
+              VerticalAlignment="Center"
+              HorizontalAlignment="Center"
+              Stroke="Black">
+            <Line.RenderTransform>
+                <TranslateTransform Y="{Binding Audio.LowerGoal}" />
+            </Line.RenderTransform>
+        </Line>
+
         <!-- Information panel -->
         <Border Grid.Row="1"
                 BorderThickness="1"
