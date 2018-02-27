@@ -96,7 +96,7 @@
                            Grid.Column="1"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center"
-                           Text="{Binding Audio.Flow, StringFormat=N2}" />
+                           Text="{Binding Audio.Flow, StringFormat=N3}" />
             </Grid>
         </Border>
     </Grid>
