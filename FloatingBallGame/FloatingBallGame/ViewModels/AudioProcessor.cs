@@ -51,8 +51,11 @@ namespace FloatingBallGame.ViewModels
                 if (value.Equals(_flow)) return;
                 _flow = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsFlowOverLimit));
             }
         }
+
+        public bool IsFlowOverLimit => this.Flow > AppViewModel.Global.AppSettings.FlowLimit;
 
         public double Ball
         {

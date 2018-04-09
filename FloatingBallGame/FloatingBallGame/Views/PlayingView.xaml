@@ -17,22 +17,41 @@
         <Rectangle Height="{Binding Audio.GoalHeight}"
                    Width="50"
                    Stroke="Black"
-                   StrokeThickness="2"
-                   Fill="AliceBlue">
+                   StrokeThickness="2">
             <Rectangle.RenderTransform>
                 <TranslateTransform Y="{Binding Audio.GoalCenter}">
 
                 </TranslateTransform>
             </Rectangle.RenderTransform>
+            <Rectangle.Style>
+                <Style TargetType="{x:Type Shape}">
+                    <Setter Property="Fill" Value="AliceBlue" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Audio.IsFlowOverLimit}" Value="True">
+                            <Setter Property="Fill" Value="LightCoral" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Rectangle.Style>
         </Rectangle>
 
         <Ellipse Height="30"
                  Width="30"
-                 Fill="Red"
+                 StrokeThickness="2"
                  Stroke="Black">
             <Ellipse.RenderTransform>
                 <TranslateTransform Y="{Binding Audio.Ball}" />
             </Ellipse.RenderTransform>
+            <Ellipse.Style>
+                <Style TargetType="{x:Type Shape}">
+                    <Setter Property="Fill" Value="Blue" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Audio.IsFlowOverLimit}" Value="True">
+                            <Setter Property="Fill" Value="Red" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Ellipse.Style>
         </Ellipse>
         
         <!--
