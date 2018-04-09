@@ -29,6 +29,8 @@ namespace FloatingBallGame.ViewModels
         private ApplicationSettings _settings;
         private double _upperGoal;
         private double _lowerGoal;
+        private double _goalCenter;
+        private double _goalHeight;
 
         public double Volume
         {
@@ -81,6 +83,29 @@ namespace FloatingBallGame.ViewModels
             {
                 if (value.Equals(_lowerGoal)) return;
                 _lowerGoal = value;
+
+                OnPropertyChanged();
+            }
+        }
+
+        public double GoalHeight
+        {
+            get => _goalHeight;
+            set
+            {
+                if (value.Equals(_goalHeight)) return;
+                _goalHeight = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double GoalCenter
+        {
+            get => _goalCenter;
+            set
+            {
+                if (value.Equals(_goalCenter)) return;
+                _goalCenter = value;
                 OnPropertyChanged();
             }
         }
@@ -166,10 +191,13 @@ namespace FloatingBallGame.ViewModels
             // lowerbar = centerbar - goalbar;
             double cappedFlow = (this.Flow < _settings.ErrorBarCeiling) ? this.Flow : _settings.ErrorBarCeiling;
             double center = _settings.FlowScale * (cappedFlow + _settings.FlowOffset);
+            GoalCenter = center;
             double goal = _settings.Amplitude * cappedFlow * _settings.ErrorBarRatio;
+            if (goal < 0)
+                goal = 0;
             this.UpperGoal = center + goal;
             this.LowerGoal = center - goal;
-
+            this.GoalHeight = 2 * goal;
 
             if (i >= 1.0)
             {

@@ -13,7 +13,19 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
+
+        <Rectangle Height="{Binding Audio.GoalHeight}"
+                   Width="50"
+                   Stroke="Black"
+                   StrokeThickness="2"
+                   Fill="AliceBlue">
+            <Rectangle.RenderTransform>
+                <TranslateTransform Y="{Binding Audio.GoalCenter}">
+
+                </TranslateTransform>
+            </Rectangle.RenderTransform>
+        </Rectangle>
+
         <Ellipse Height="30"
                  Width="30"
                  Fill="Red"
@@ -23,6 +35,7 @@
             </Ellipse.RenderTransform>
         </Ellipse>
         
+        <!--
         <Line X1="0" X2="50"
               Y1="0" Y2="0"
               StrokeThickness="3"
@@ -45,6 +58,9 @@
                 <TranslateTransform Y="{Binding Audio.LowerGoal}" />
             </Line.RenderTransform>
         </Line>
+        -->
+
+        
 
         <!-- Information panel -->
         <Border Grid.Row="1"
