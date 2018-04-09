@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace FloatingBallGame.ViewModels
         private double _lowerGoal;
         private double _goalCenter;
         private double _goalHeight;
+        private bool _isInTrial;
+        private DateTime _trialStart;
 
         public double Volume
         {
@@ -113,10 +116,38 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        public List<TestSample> Samples { get; set; }
+
+        public bool IsInTrial
+        {
+            get => _isInTrial;
+            set
+            {
+                if (value == _isInTrial) return;
+                _isInTrial = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime TrialStart
+        {
+            get => _trialStart;
+            set
+            {
+                if (value.Equals(_trialStart)) return;
+                _trialStart = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public FixedListContainer<double> FlowHistory;
+
         public AudioProcessor(ApplicationSettings settings)
         {
             _settings = settings;
             _stopwatch = new Stopwatch();
+            Samples = new List<TestSample>();
+            FlowHistory = new FixedListContainer<double>(5);
         }
 
         public void Configure()
@@ -162,12 +193,38 @@ namespace FloatingBallGame.ViewModels
 
         }
 
+        private void StartTrial()
+        {
+            IsInTrial = true;
+        }
+
+        private void StopTrial()
+        {
+            IsInTrial = false;
+        }
+
         private void FlowProviderOnDataAvailable(object sender, WaveInEventArgs e)
         {
             if (_flowFormat == null)
                 _flowFormat = _flowProvider.WaveFormat;
 
             this.Flow = _flowConvert.Invoke(Processing.RmsValue(e.Buffer, _flowFormat));
+            this.FlowHistory.Add(this.Flow);
+
+            if (FlowHistory.IsFull)
+            {
+                var contentAverage = this.FlowHistory.Contents.Average();
+                if (IsInTrial && contentAverage < AppViewModel.Global.AppSettings.TrialStartThreshold)
+                {
+                    StopTrial();
+                }
+                else if (!IsInTrial && contentAverage > AppViewModel.Global.AppSettings.TrialStartThreshold)
+                {
+                    StartTrial();
+                }
+
+            }
+
             this.UpdateBallPosition();
         }
 
@@ -200,7 +257,7 @@ namespace FloatingBallGame.ViewModels
                 goal = 0;
             this.UpperGoal = center + goal;
             this.LowerGoal = center - goal;
-            this.GoalHeight = 2 * goal;
+            this.GoalHeight = 2 * goal + AppViewModel.Global.AppSettings.BallSize;
 
             if (i >= 1.0)
             {

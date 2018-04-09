@@ -8,6 +8,17 @@
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance vm:AppViewModel}">
+    <UserControl.Resources>
+        <Style x:Key="ShowInTrial"
+               TargetType="{x:Type FrameworkElement}">
+            <Setter Property="Visibility" Value="Visible" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Audio.IsInTrial}" Value="False">
+                    <Setter Property="Visibility" Value="Hidden" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -35,8 +46,8 @@
             </Rectangle.Style>
         </Rectangle>
 
-        <Ellipse Height="30"
-                 Width="30"
+        <Ellipse Height="{Binding AppSettings.BallSize}"
+                 Width="{Binding AppSettings.BallSize}"
                  StrokeThickness="2"
                  Stroke="Black">
             <Ellipse.RenderTransform>
@@ -54,32 +65,13 @@
             </Ellipse.Style>
         </Ellipse>
         
-        <!--
-        <Line X1="0" X2="50"
-              Y1="0" Y2="0"
-              StrokeThickness="3"
-              VerticalAlignment="Center"
-              HorizontalAlignment="Center"
-              Stroke="Black">
-            <Line.RenderTransform>
-                <TranslateTransform Y="{Binding Audio.UpperGoal}" />
-            </Line.RenderTransform>
-        </Line>
-
-
-        <Line X1="0" X2="50"
-              Y1="0" Y2="0"
-              StrokeThickness="3"
-              VerticalAlignment="Center"
-              HorizontalAlignment="Center"
-              Stroke="Black">
-            <Line.RenderTransform>
-                <TranslateTransform Y="{Binding Audio.LowerGoal}" />
-            </Line.RenderTransform>
-        </Line>
-        -->
-
-        
+        <TextBlock FontSize="14"
+                   FontWeight="Bold"
+                   VerticalAlignment="Top"
+                   Margin="10"
+                   Style="{StaticResource ShowInTrial}">
+            Trial Recording
+        </TextBlock>
 
         <!-- Information panel -->
         <Border Grid.Row="1"

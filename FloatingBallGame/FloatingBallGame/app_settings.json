@@ -14,9 +14,15 @@
     }
   ],
 
+  // trial start/stop parameters
+  "trial_start_threshold": 0.001, // L/s threshold 
+
   // Audio properties
   "sample_rate": 22050,
   "buffer_ms": 50,
+
+  // Graphics stuff
+  "ball_size": 30,
 
   // Ball position is according to the following equation, which can be tuned with the four
   // parameters given below
@@ -25,9 +31,9 @@
   "flow_offset": -0.03,
   "amplitude": 1.0,
   "frequency": 2.0,
-  "flow_limit": 0.1,  // L/s flow limit, above which the ball and error box turn red 
+  "flow_limit": 0.1, // L/s flow limit, above which the ball and error box turn red
 
   // Error bar properties
-  "error_bar_ratio": 800, // error bar ratio 
+  "error_bar_ratio": 800, // error bar ratio
   "error_bar_ceiling": 0.1 // flow ceiling for error bar center
 }

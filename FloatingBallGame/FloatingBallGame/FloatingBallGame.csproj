@@ -72,11 +72,13 @@
     <Compile Include="Audio\IGameWaveProvider.cs" />
     <Compile Include="Audio\SampleGameWaveProvider.cs" />
     <Compile Include="Audio\SampleProviderConfigData.cs" />
+    <Compile Include="Audio\TestSample.cs" />
     <Compile Include="Audio\WaveInPrecursor.cs" />
     <Compile Include="Audio\WaveMode.cs" />
     <Compile Include="Audio\MeasurementType.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ApplicationSettings.cs" />
+    <Compile Include="Tools\FixedListContainer.cs" />
     <Compile Include="Tools\Processing.cs" />
     <Compile Include="Tools\DelegateCommand.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />

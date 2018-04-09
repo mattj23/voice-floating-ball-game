@@ -21,5 +21,9 @@ namespace FloatingBallGame
 
         public double ErrorBarRatio { get; set; }
         public double ErrorBarCeiling { get; set; }
+
+        public double BallSize { get; set; }
+
+        public double TrialStartThreshold { get; set; }
     }
 }
