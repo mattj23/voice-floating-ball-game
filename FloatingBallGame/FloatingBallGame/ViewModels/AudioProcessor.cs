@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using FloatingBallGame.Annotations;
 using FloatingBallGame.Audio;
 using FloatingBallGame.Tools;
 using NAudio.Wave;
+using Newtonsoft.Json;
 
 namespace FloatingBallGame.ViewModels
 {
@@ -196,11 +198,15 @@ namespace FloatingBallGame.ViewModels
         private void StartTrial()
         {
             IsInTrial = true;
+            TrialStart = DateTime.Now;
+            Samples.Clear();
         }
 
         private void StopTrial()
         {
             IsInTrial = false;
+            File.WriteAllText($"trial {TrialStart:yyyy-MM-dd-hh-mm-ss}.json", JsonConvert.SerializeObject(Samples, Formatting.Indented));
+            Samples.Clear();
         }
 
         private void FlowProviderOnDataAvailable(object sender, WaveInEventArgs e)
@@ -263,6 +269,19 @@ namespace FloatingBallGame.ViewModels
             {
                 _stopwatch.Restart();
             }
+
+            if (IsInTrial)
+            {
+                var sample = new TestSample
+                {
+                    Volume = this.Volume,
+                    Flow = this.Flow,
+                    Time = (DateTime.Now - TrialStart).TotalSeconds
+                };
+
+                this.Samples.Add(sample);
+            }
+            
         }
 
         private int GetDeviceNumber(WaveInCapabilities device)
