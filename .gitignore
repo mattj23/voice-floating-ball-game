@@ -5,7 +5,7 @@
 
 # Data samples folder
 samples/
-
+data/
 
 # User-specific files
 *.suo
