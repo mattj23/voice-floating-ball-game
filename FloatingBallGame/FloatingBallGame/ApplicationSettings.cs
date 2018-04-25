@@ -17,10 +17,10 @@ namespace FloatingBallGame
         public double Frequency { get; set; }
         public double Amplitude { get; set; }
 
-        public double FlowLimit { get; set; }
+        public double UpperFlowLimit { get; set; }
+        public double LowerFlowLimit { get; set; }
 
         public double ErrorBarRatio { get; set; }
-        public double ErrorBarCeiling { get; set; }
 
         public double BallSize { get; set; }
 

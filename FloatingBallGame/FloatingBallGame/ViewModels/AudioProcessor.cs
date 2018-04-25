@@ -56,11 +56,20 @@ namespace FloatingBallGame.ViewModels
                 if (value.Equals(_flow)) return;
                 _flow = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(IsFlowOverLimit));
+                OnPropertyChanged(nameof(IsFlowOutOfLimits));
             }
         }
 
-        public bool IsFlowOverLimit => this.Flow > AppViewModel.Global.AppSettings.FlowLimit;
+        public bool IsFlowOutOfLimits
+        {
+            get => _isFlowOutOfLimits;
+            set
+            {
+                if (value == _isFlowOutOfLimits) return;
+                _isFlowOutOfLimits = value;
+                OnPropertyChanged();
+            }
+        }
 
         public double Ball
         {
@@ -143,6 +152,7 @@ namespace FloatingBallGame.ViewModels
         }
 
         public FixedListContainer<double> FlowHistory;
+        private bool _isFlowOutOfLimits;
 
         public AudioProcessor(ApplicationSettings settings)
         {
@@ -243,19 +253,72 @@ namespace FloatingBallGame.ViewModels
             // this.UpdateBallPosition();
         }
 
+        private double Ln(double x) => Math.Log(x, Math.E);
+        private double Sq(double x) => x * x;
+
+        private double LimitFlow(double flow)
+        {
+            if (flow < _settings.LowerFlowLimit)
+            {
+                IsFlowOutOfLimits = true;
+                return _settings.LowerFlowLimit;
+            }
+
+            if (flow > _settings.UpperFlowLimit)
+            {
+                IsFlowOutOfLimits = true;
+                return _settings.UpperFlowLimit;
+            }
+
+            IsFlowOutOfLimits = false;
+            return flow;
+        }
+
         private void UpdateBallPosition()
         {
+            /*
+             * Updated 4/9/2018
+             * F = 20*(0.1-flow);
+               noise = 1/10*1./(F)*exp(-1*(log((F))-log(0.27)).^2./(2*0.7.^2))...
+               *exp(-1*(acc-0.8*flow).^2./(2*0.01.^2));
+               
+               
+               centerbar = 10*(flow-0.03);
+               
+               goalbar = 3*flow*0.8;
+               
+               upperbar = centerbar + goalbar;
+               lowerbar = centerbar - goalbar;
+               
+               
+               flow = mean(data(i-11:i,1));
+               acc = mean(data(i-11:i,2));
+               
+               
+               ACC = 3*acc*(1+(0.5-noise));
+               
+               ball(i) = 10*(flow-0.03) + ACC*cos(2*pi*2.0*i/60);
+               
+             */
+
+            /* Noise stuff 
+            var F = 20 * (_settings.UpperFlowLimit - this.Flow);
+            var noise = 1 / 10 * 1/F * Math.Exp(-1 * Sq(Ln(F) - Ln(0.27)) / (2 * Sq(0.7))) * Math.Exp(-1 * Sq(this.Volume - 0.8 * this.Flow) / (2 * 0.01 * 0.01));
+
             // Ball position
-            // 10*(flow-0.03) + 3*acc*cos(2*pi*2.0*i/60);
+            var ACC = _settings.Amplitude * this.Volume * (1 + (0.5 - noise)); */
+
+            var ACC = _settings.Amplitude * this.Volume; // Non-noise version
             double i = _stopwatch.ElapsedMilliseconds / 1000.0;
-            this.Ball = _settings.FlowScale * (this.Flow + _settings.FlowOffset) + _settings.Amplitude * this.Volume * Math.Cos(_settings.Frequency * Math.PI * i);
+            this.Ball = _settings.FlowScale * (this.Flow + _settings.FlowOffset) + ACC * Math.Cos(_settings.Frequency * Math.PI * i);
 
             // Error bar position
             // centerbar = 10 * (flow - 0.03);
             // goalbar = 3 * flow * 0.8;
             // upperbar = centerbar + goalbar;
             // lowerbar = centerbar - goalbar;
-            double cappedFlow = (this.Flow < _settings.ErrorBarCeiling) ? this.Flow : _settings.ErrorBarCeiling;
+            double cappedFlow = LimitFlow(this.Flow);
+
             double center = _settings.FlowScale * (cappedFlow + _settings.FlowOffset);
             GoalCenter = center;
             double goal = _settings.Amplitude * cappedFlow * _settings.ErrorBarRatio;
