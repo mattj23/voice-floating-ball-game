@@ -25,6 +25,10 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <!-- Goal rectangle, 
+            bound to Audio.GoalCenter for the center height of the rectangle 
+            bound to Audio.GoalHeight for the height of the rectangle
+        -->
         <Rectangle Height="{Binding Audio.GoalHeight}"
                    Width="50"
                    Stroke="Black"
@@ -50,6 +54,7 @@
             </Rectangle.Style>
         </Rectangle>
 
+        <!-- Ball ellipse, bound to Audio.Ball -->
         <Ellipse Height="{Binding AppSettings.BallSize}"
                  Width="{Binding AppSettings.BallSize}"
                  StrokeThickness="2"
@@ -81,7 +86,7 @@
             Trial Recording
         </TextBlock>
 
-        <!-- Information panel -->
+        <!-- Information panel, bound to Audio.Volume and Audio.Flow -->
         <Border Grid.Row="1"
                 BorderThickness="1"
                 BorderBrush="Black"

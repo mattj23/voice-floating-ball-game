@@ -15,6 +15,8 @@ namespace FloatingBallGame.ViewModels
 {
     public class AudioProcessor : INotifyPropertyChanged
     {
+        private const int HistoryWindow = 11;
+
         private IGameWaveProvider _volumeProvider;
         private IGameWaveProvider _flowProvider;
         private WaveFormat _flowFormat;
@@ -71,6 +73,10 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        /// <summary>
+        /// The position of the ball, updating this property updates the visual ball 
+        /// position in the view.
+        /// </summary>
         public double Ball
         {
             get => _ball;
@@ -127,12 +133,20 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        /// <summary>
+        /// Contains the history of samples taken during the course of the trial, written to the trial
+        /// log and wiped clean at the end of each trial.
+        /// </summary>
         public List<TestSample> Samples { get; set; }
 
+        /// <summary>
+        /// Gets the state flag that indicates whether or not the audio processer currently identifies as being 
+        /// in an underway trial, used by the view to update itself accordingly
+        /// </summary>
         public bool IsInTrial
         {
             get => _isInTrial;
-            set
+            private set
             {
                 if (value == _isInTrial) return;
                 _isInTrial = value;
@@ -151,7 +165,16 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        /// <summary>
+        /// Is the last n (HistoryWindow) samples of flow 
+        /// </summary>
         public FixedListContainer<double> FlowHistory;
+
+        /// <summary>
+        /// Is the last n (HistoryWindow) samples of acceleration (volume)
+        /// </summary>
+        public FixedListContainer<double> AccHistory;
+
         private bool _isFlowOutOfLimits;
 
         public AudioProcessor(ApplicationSettings settings)
@@ -324,6 +347,8 @@ namespace FloatingBallGame.ViewModels
             double goal = _settings.Amplitude * cappedFlow * _settings.ErrorBarRatio;
             if (goal < 0)
                 goal = 0;
+
+            // Upper and lower goals are currently unused 
             this.UpperGoal = center + goal;
             this.LowerGoal = center - goal;
             this.GoalHeight = 2 * goal + AppViewModel.Global.AppSettings.BallSize;
