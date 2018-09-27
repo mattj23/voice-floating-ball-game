@@ -40,10 +40,31 @@ namespace FloatingBallGame.ViewModels
         /// </summary>
         private Func<double, double> _flowConvert;
 
+        /// <summary>
+        /// The moving average for flow, computed from the history window size
+        /// </summary>
+        private double _flowAverage;
+
+        /// <summary>
+        /// The moving average for volume, computed from the history window size
+        /// </summary>
+        private double _volumeAverage;
+
+        /// <summary>
+        /// Backing field for the flow, do not access directly
+        /// </summary>
         private double _flow;
+
+        /// <summary>
+        /// Backing field for volume, do not access directly
+        /// </summary>
         private double _volume;
 
         private Stopwatch _stopwatch;
+
+        /// <summary>
+        /// Backing field for the ball height; do not access directly
+        /// </summary>
         private double _ball;
 
         private ApplicationSettings _settings;
@@ -200,7 +221,7 @@ namespace FloatingBallGame.ViewModels
         /// <summary>
         /// Is the last n (HistoryWindow) samples of acceleration (volume)
         /// </summary>
-        public FixedListContainer<double> AccHistory;
+        public FixedListContainer<double> VolumeHistory;
 
         private bool _isFlowOutOfLimits;
 
@@ -209,8 +230,8 @@ namespace FloatingBallGame.ViewModels
             _settings = settings;
             _stopwatch = new Stopwatch();
             Samples = new List<TestSample>();
-            FlowHistory = new FixedListContainer<double>(5);
-            
+            FlowHistory = new FixedListContainer<double>(HistoryWindow);
+            VolumeHistory = new FixedListContainer<double>(HistoryWindow);
         }
 
         public void Configure()
@@ -277,38 +298,67 @@ namespace FloatingBallGame.ViewModels
             Samples.Clear();
         }
 
+        /// <summary>
+        /// Event handler raised when flow data is made available.  Adds the flow data to the floating average window, then invokes
+        /// the UpdateBallPosition method.  This method is also responsible for starting and stopping the trials when the flow raises
+        /// or falls above or below trial start/stop thresholds.  
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FlowProviderOnDataAvailable(object sender, WaveInEventArgs e)
         {
             if (_flowFormat == null)
                 _flowFormat = _flowProvider.WaveFormat;
 
+            // Sample the provided data and convert to a flow value and store it in the main object flow property
+            // where it is accessible to other methods and objects
             this.Flow = _flowConvert.Invoke(Processing.RmsValue(e.Buffer, _flowFormat));
             this.FlowHistory.Add(this.Flow);
 
+            // When the flowhistory is full we can start taking the moving average, using it to determine whether or not
+            // we should start or stop a trial, and deciding whether or not to update the ball position
             if (FlowHistory.IsFull)
             {
-                var contentAverage = this.FlowHistory.Contents.Average();
-                if (IsInTrial && contentAverage < AppViewModel.Global.AppSettings.TrialStartThreshold)
+                _flowAverage = this.FlowHistory.Contents.Average();
+
+                // If we're in a trial and the flow average drops below the trial start threshold we can end the current trial 
+                if (IsInTrial && _flowAverage < AppViewModel.Global.AppSettings.TrialStartThreshold)
                 {
                     StopTrial();
                 }
-                else if (!IsInTrial && contentAverage > AppViewModel.Global.AppSettings.TrialStartThreshold)
+                // Otherwise if we're not in a trial but the flow average has ascended above the trial start threshold, we can begin the trial
+                else if (!IsInTrial && _flowAverage > AppViewModel.Global.AppSettings.TrialStartThreshold)
                 {
                     StartTrial();
                 }
 
+                // If we're in a trial, we can perform the ball position update.  Note that this is not called from the 
+                // volume data available event handler in order to not double-call the method in the window between now
+                // and when the next flow data is available. Only one of the event handlers should call the update method
+                // and it just so happens I chose this one.
+                if (IsInTrial)
+                    this.UpdateBallPosition();
             }
-
-            this.UpdateBallPosition();
         }
 
+        /// <summary>
+        /// Event handler raised when volume data is made available.  Adds the volume data to the floating average window, then
+        /// places the computed average in the private field for the update ball position method to use.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void VolumeProviderOnDataAvailable(object sender, WaveInEventArgs e)
         {
             if (_volumeFormat == null)
                 _volumeFormat = _volumeProvider.WaveFormat;
 
+            // Sample the provided data and convert it to a decibel value by the calibrated conversion function.  Then add
+            // it to the floating averaging window collection.
             this.Volume = _volumeConvert.Invoke(Processing.RmsValue(e.Buffer, _volumeFormat));
-            // this.UpdateBallPosition();
+            this.VolumeHistory.Add(this.Volume);
+
+            // Compute and store the floating average.
+            _volumeAverage = this.VolumeHistory.Contents.Average();
         }
 
         private double Ln(double x) => Math.Log(x, Math.E);
