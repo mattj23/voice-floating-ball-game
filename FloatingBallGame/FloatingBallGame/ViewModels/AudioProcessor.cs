@@ -17,12 +17,27 @@ namespace FloatingBallGame.ViewModels
     {
         private const int HistoryWindow = 11;
 
+        /// <summary>
+        /// The provider for the volume data, raises an event when data is ready
+        /// </summary>
         private IGameWaveProvider _volumeProvider;
+
+        /// <summary>
+        /// The provider for the flow data, raises an event when the data is ready 
+        /// </summary>
         private IGameWaveProvider _flowProvider;
+
         private WaveFormat _flowFormat;
         private WaveFormat _volumeFormat;
 
+        /// <summary>
+        /// Volume conversion function which takes into account the saved calibration data for the device
+        /// </summary>
         private Func<double, double> _volumeConvert;
+
+        /// <summary>
+        /// Flow conversion function which takes into account the saved calibration data for the device
+        /// </summary>
         private Func<double, double> _flowConvert;
 
         private double _flow;
@@ -88,6 +103,9 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        /// <summary>
+        /// Currently unused 
+        /// </summary>
         public double UpperGoal
         {
             get => _upperGoal;
@@ -99,6 +117,9 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        /// <summary>
+        /// Currently unused
+        /// </summary>
         public double LowerGoal
         {
             get => _lowerGoal;
@@ -111,10 +132,13 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the height of the goal rectangle
+        /// </summary>
         public double GoalHeight
         {
             get => _goalHeight;
-            set
+            private set
             {
                 if (value.Equals(_goalHeight)) return;
                 _goalHeight = value;
@@ -122,6 +146,9 @@ namespace FloatingBallGame.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the center position of the goal rectangle
+        /// </summary>
         public double GoalCenter
         {
             get => _goalCenter;
@@ -183,10 +210,13 @@ namespace FloatingBallGame.ViewModels
             _stopwatch = new Stopwatch();
             Samples = new List<TestSample>();
             FlowHistory = new FixedListContainer<double>(5);
+            
         }
 
         public void Configure()
         {
+            // Unregister the volume and flow providers from the data available handlers.  This is
+            // to prevent multiple subscriptions if the providers change.
             if (_volumeProvider != null)
             {
                 _volumeProvider.DataAvailable -= VolumeProviderOnDataAvailable;
@@ -196,15 +226,19 @@ namespace FloatingBallGame.ViewModels
                 _flowProvider.DataAvailable -= FlowProviderOnDataAvailable;
             }
 
+            // Register the new volume device as the volume data provider
             _volumeProvider = AppViewModel.Global.Config.VolumeDevice.ToProvider();
 
+            // From the calibration data, assemble the volume conversion fuction _volumeConvert
             // 20 * log10 (V_noise / V_ref) + dB_ref
             double voltageRef = AppViewModel.Global.Config.VolumeCalibration.Measured.First();
             double dbRef = AppViewModel.Global.Config.VolumeCalibration.Actual.First();
             _volumeConvert = d => 20 * Math.Log10(d / voltageRef) + dbRef;
 
+            // Register the new flow device as the flow data provider
             _flowProvider = AppViewModel.Global.Config.FlowDevice.ToProvider();
 
+            // From the calibration data, assemble the flow conversion fuction _flowConvert
             double[] ys = AppViewModel.Global.Config.FlowCalibration.Actual.ToArray();
             double[] xs = AppViewModel.Global.Config.FlowCalibration.Measured.ToArray();
             double m = (ys.First() - ys.Last()) / (xs.First() - xs.Last());
@@ -212,6 +246,7 @@ namespace FloatingBallGame.ViewModels
             double b = m * (0 - xs.First()) + ys.First();
             _flowConvert = d => m * d + b;
 
+            // Register the data available event handlers
             _volumeProvider.DataAvailable += VolumeProviderOnDataAvailable;
             _flowProvider.DataAvailable += FlowProviderOnDataAvailable;
 
