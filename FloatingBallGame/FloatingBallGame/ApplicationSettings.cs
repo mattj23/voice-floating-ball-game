@@ -25,5 +25,12 @@ namespace FloatingBallGame
         public double BallSize { get; set; }
 
         public double TrialStartThreshold { get; set; }
+        public int TrialStartWindow { get; set; }
+
+        public int HistoryWindow { get; set; }
+
+        public double GoalFlow { get; set; }
+
+        public double GraphicsScale { get; set; }
     }
 }

@@ -1,40 +1,46 @@
 {
-  "sample_providers": [
-    {
-      "name": "Jarrad Microphone Sample",
-      "calibration_sample": "samples\\JVS_u_MicCal_20180118.wav",
-      "playing_sample": "samples\\JVS_u_Mic_20180118.wav",
-      "id": "c2cc552b-14cf-4fc9-86e0-8f3a6a9dbae6"
-    },
-    {
-      "name": "Jarrad Flow Sample",
-      "calibration_sample": "samples\\JVS_u_FlowCal_20180118.wav",
-      "playing_sample": "samples\\JVS_u_Flow_20180118.wav",
-      "id": "c22914a8-2490-4467-8779-f12d050b630a"
-    }
-  ],
+    "sample_providers": [
+        {
+            "name": "Jarrad Microphone Sample",
+            "calibration_sample": "samples\\JVS_u_MicCal_20180118.wav",
+            "playing_sample": "samples\\JVS_u_Mic_20180118.wav",
+            "id": "c2cc552b-14cf-4fc9-86e0-8f3a6a9dbae6"
+        },
+        {
+            "name": "Jarrad Flow Sample",
+            "calibration_sample": "samples\\JVS_u_FlowCal_20180118.wav",
+            "playing_sample": "samples\\JVS_u_Flow_20180118.wav",
+            "id": "c22914a8-2490-4467-8779-f12d050b630a"
+        }
+    ],
 
-  // trial start/stop parameters
-  "trial_start_threshold": 0.001, // L/s threshold 
+    // trial start/stop parameters
+    "trial_start_threshold": 0.001, // L/s threshold
+    "trial_start_window": 5, // Number of frames that must be above or below the threshold to start/stop the trial
 
-  // Audio properties
-  "sample_rate": 22050,
-  "buffer_ms": 50,
+    "history_window": 11, // Number of frames used to calculate the flow and volume
 
-  // Graphics stuff
-  "ball_size": 30,
+    // Audio properties
+    "sample_rate": 22050,
+    "buffer_ms": 50,
 
-  // Ball position is according to the following equation, which can be tuned with the four
-  // parameters given below
-  // flow_scale * (flow + flow_offset) + amplitude * volume * cos(frequency * pi * time);
-  "flow_scale": -500,
-  "flow_offset": -0.03,
-  "amplitude": 1.0,
-  "frequency": 2.0,
+    // Graphics stuff
+    "ball_size": 30,
+    "graphics_scale": 100, // Scale factor for the graphics
 
-  "upper_flow_limit": 0.1, // L/s flow limit, above which the ball and error box turn red
-  "lower_flow_limit": 0.08, 
+    "goal_flow":  0.8, // L/s 
 
-  // Error bar properties
-  "error_bar_ratio": 800 // error bar ratio
+    // Ball position is according to the following equation, which can be tuned with the four
+    // parameters given below
+    // flow_scale * (flow + flow_offset) + amplitude * volume * cos(frequency * pi * time);
+    "flow_scale": -500,
+    "flow_offset": -0.03,
+    "amplitude": 1.0,
+    "frequency": 2.0,
+
+    "upper_flow_limit": 0.1, // L/s flow limit, above which the ball and error box turn red
+    "lower_flow_limit": 0.08,
+
+    // Error bar properties
+    "error_bar_ratio": 800 // error bar ratio
 }

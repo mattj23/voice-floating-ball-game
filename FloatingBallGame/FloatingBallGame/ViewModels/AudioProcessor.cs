@@ -15,7 +15,6 @@ namespace FloatingBallGame.ViewModels
 {
     public class AudioProcessor : INotifyPropertyChanged
     {
-        private const int HistoryWindow = 11;
 
         /// <summary>
         /// The provider for the volume data, raises an event when data is ready
@@ -74,6 +73,9 @@ namespace FloatingBallGame.ViewModels
         private double _goalHeight;
         private bool _isInTrial;
         private DateTime _trialStart;
+
+        private long _lastClock;
+        private double _instantaneousPhase;
 
         public double Volume
         {
@@ -223,6 +225,8 @@ namespace FloatingBallGame.ViewModels
         /// </summary>
         public FixedListContainer<double> VolumeHistory;
 
+        public FixedListContainer<double> TrialStartFlowHistory;
+
         private bool _isFlowOutOfLimits;
 
         public AudioProcessor(ApplicationSettings settings)
@@ -230,8 +234,9 @@ namespace FloatingBallGame.ViewModels
             _settings = settings;
             _stopwatch = new Stopwatch();
             Samples = new List<TestSample>();
-            FlowHistory = new FixedListContainer<double>(HistoryWindow);
-            VolumeHistory = new FixedListContainer<double>(HistoryWindow);
+            FlowHistory = new FixedListContainer<double>(settings.HistoryWindow);
+            VolumeHistory = new FixedListContainer<double>(settings.HistoryWindow);
+            TrialStartFlowHistory = new FixedListContainer<double>(settings.TrialStartWindow);
         }
 
         public void Configure()
@@ -281,7 +286,8 @@ namespace FloatingBallGame.ViewModels
             _flowProvider.StartRecording();
             _stopwatch.Reset();
             _stopwatch.Start();
-
+            _lastClock = 0;
+            _instantaneousPhase = 0;
         }
 
         private void StartTrial()
@@ -314,31 +320,32 @@ namespace FloatingBallGame.ViewModels
             // where it is accessible to other methods and objects
             this.Flow = _flowConvert.Invoke(Processing.RmsValue(e.Buffer, _flowFormat));
             this.FlowHistory.Add(this.Flow);
+            this.TrialStartFlowHistory.Add(this.Flow);
 
             // When the flowhistory is full we can start taking the moving average, using it to determine whether or not
             // we should start or stop a trial, and deciding whether or not to update the ball position
-            if (FlowHistory.IsFull)
+            if (TrialStartFlowHistory.IsFull)
             {
+                // The trial start is computed off of the trial start history
+                double trialStartFlow = this.TrialStartFlowHistory.Contents.Average();
+
+                // The actual flow average value is computed off of the flow history, which may be a different 
+                // length than the trial start/stop history
                 _flowAverage = this.FlowHistory.Contents.Average();
 
                 // If we're in a trial and the flow average drops below the trial start threshold we can end the current trial 
-                if (IsInTrial && _flowAverage < AppViewModel.Global.AppSettings.TrialStartThreshold)
+                if (IsInTrial && trialStartFlow < AppViewModel.Global.AppSettings.TrialStartThreshold)
                 {
                     StopTrial();
                 }
                 // Otherwise if we're not in a trial but the flow average has ascended above the trial start threshold, we can begin the trial
-                else if (!IsInTrial && _flowAverage > AppViewModel.Global.AppSettings.TrialStartThreshold)
+                else if (!IsInTrial && trialStartFlow > AppViewModel.Global.AppSettings.TrialStartThreshold)
                 {
                     StartTrial();
                 }
-
-                // If we're in a trial, we can perform the ball position update.  Note that this is not called from the 
-                // volume data available event handler in order to not double-call the method in the window between now
-                // and when the next flow data is available. Only one of the event handlers should call the update method
-                // and it just so happens I chose this one.
-                if (IsInTrial)
-                    this.UpdateBallPosition();
             }
+
+            this.UpdateBallPosition();
         }
 
         /// <summary>
@@ -384,65 +391,63 @@ namespace FloatingBallGame.ViewModels
 
         private void UpdateBallPosition()
         {
+            // The volume and flow averages are already computed as _flowAverage and _volumeAverage
+            var acc =  _volumeAverage;
+            var flow = _flowAverage;
+
             /*
-             * Updated 4/9/2018
-             * F = 20*(0.1-flow);
-               noise = 1/10*1./(F)*exp(-1*(log((F))-log(0.27)).^2./(2*0.7.^2))...
-               *exp(-1*(acc-0.8*flow).^2./(2*0.01.^2));
-               
-               
-               centerbar = 10*(flow-0.03);
-               
-               goalbar = 3*flow*0.8;
-               
-               upperbar = centerbar + goalbar;
-               lowerbar = centerbar - goalbar;
-               
-               
-               flow = mean(data(i-11:i,1));
-               acc = mean(data(i-11:i,2));
-               
-               
-               ACC = 3*acc*(1+(0.5-noise));
-               
-               ball(i) = 10*(flow-0.03) + ACC*cos(2*pi*2.0*i/60);
-               
-             */
+               % Ball color will be determined based on SCORE.
+               % SCORE quantifies how far the flow/acc ratio is from 0.8.
+               % SCORE should not go beyond the range [-15 15]
+               % since this is directly used for the color look up table.
+               rawSCORE = (acc - flow*0.8)/0.1*50;
+               if rawSCORE>=0,
+               SCORE = min([rawSCORE,15]);
+               else
+               SCORE = max([rawSCORE,-15]);
+               end
+            */
+            double rawScore = (acc - flow * _settings.GoalFlow) / 0.1 * 50;
+            double score = rawScore;
+            if (score > 15)
+                score = 15;
+            if (score < -15)
+                score = -15;
 
-            /* Noise stuff 
-            var F = 20 * (_settings.UpperFlowLimit - this.Flow);
-            var noise = 1 / 10 * 1/F * Math.Exp(-1 * Sq(Ln(F) - Ln(0.27)) / (2 * Sq(0.7))) * Math.Exp(-1 * Sq(this.Volume - 0.8 * this.Flow) / (2 * 0.01 * 0.01));
+            double ACC = 3 * acc;
 
-            // Ball position
-            var ACC = _settings.Amplitude * this.Volume * (1 + (0.5 - noise)); */
+            double freq = acc * 1 / 0.036;
 
-            var ACC = _settings.Amplitude * this.Volume; // Non-noise version
-            double i = _stopwatch.ElapsedMilliseconds / 1000.0;
-            this.Ball = _settings.FlowScale * (this.Flow + _settings.FlowOffset) + ACC * Math.Cos(_settings.Frequency * Math.PI * i);
+            // How much time has elapsed since the last update
+            double elapsed = (_stopwatch.ElapsedMilliseconds - _lastClock) / 1000.0;
+            _lastClock = _stopwatch.ElapsedMilliseconds;
 
-            // Error bar position
-            // centerbar = 10 * (flow - 0.03);
-            // goalbar = 3 * flow * 0.8;
-            // upperbar = centerbar + goalbar;
-            // lowerbar = centerbar - goalbar;
-            double cappedFlow = LimitFlow(this.Flow);
+            //double iPhase = iPhase + 2 * Math.PI * freq / 60;
+            // instantaneous phase
+            _instantaneousPhase += 2 * Math.PI * freq * elapsed;
 
-            double center = _settings.FlowScale * (cappedFlow + _settings.FlowOffset);
-            GoalCenter = center;
-            double goal = _settings.Amplitude * cappedFlow * _settings.ErrorBarRatio;
-            if (goal < 0)
-                goal = 0;
+            double ballCenter = 20 * flow - 1.25;
+            // -1 because the graphics canvas is inverted
+            this.Ball = -1 * (ballCenter * _settings.GraphicsScale); // (ballCenter + ACC * Math.Cos(_instantaneousPhase)) * _settings.GraphicsScale;
 
-            // Upper and lower goals are currently unused 
-            this.UpperGoal = center + goal;
-            this.LowerGoal = center - goal;
-            this.GoalHeight = 2 * goal + AppViewModel.Global.AppSettings.BallSize;
+            double goalHalfHeight = 2.4 * flow;
+            double goalCenter = ballCenter;
 
-            if (i >= 1.0)
+            if (flow < 0.08)
             {
-                _stopwatch.Restart();
+                goalHalfHeight = 0.192;
+                goalCenter = 1.6 - 1.25;
             }
 
+            if (flow > 0.1)
+            {
+                goalHalfHeight = 0.24;
+                goalCenter = 2 - 1.25;
+            }
+
+            this.GoalCenter = -1 * goalCenter * _settings.GraphicsScale;
+            this.GoalHeight = (2 * goalHalfHeight) * _settings.GraphicsScale + AppViewModel.Global.AppSettings.BallSize;
+            
             if (IsInTrial)
             {
                 var sample = new TestSample
@@ -476,3 +481,4 @@ namespace FloatingBallGame.ViewModels
         }
     }
 }
+ 
