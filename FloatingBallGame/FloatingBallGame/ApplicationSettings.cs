@@ -20,7 +20,7 @@ namespace FloatingBallGame
         public double UpperFlowLimit { get; set; }
         public double LowerFlowLimit { get; set; }
 
-        public double ErrorBarRatio { get; set; }
+        public double GoalRatio { get; set; }
 
         public double BallSize { get; set; }
 

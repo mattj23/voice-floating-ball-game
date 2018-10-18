@@ -36,11 +36,11 @@
     "flow_scale": -500,
     "flow_offset": -0.03,
     "amplitude": 1.0,
-    "frequency": 2.0,
+    "frequency": 1.0,   // Frequency scaling factor
 
     "upper_flow_limit": 0.1, // L/s flow limit, above which the ball and error box turn red
     "lower_flow_limit": 0.08,
 
     // Error bar properties
-    "error_bar_ratio": 800 // error bar ratio
+    "goal_ratio": 800 // goal ratio of dB divided by flow
 }

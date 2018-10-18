@@ -15,6 +15,7 @@ namespace FloatingBallGame.ViewModels
 {
     public class AudioProcessor : INotifyPropertyChanged
     {
+        private const double TwoPi = Math.PI * 2;
 
         /// <summary>
         /// The provider for the volume data, raises an event when data is ready
@@ -295,6 +296,7 @@ namespace FloatingBallGame.ViewModels
             IsInTrial = true;
             TrialStart = DateTime.Now;
             Samples.Clear();
+            _instantaneousPhase = 0;
         }
 
         private void StopTrial()
@@ -392,8 +394,39 @@ namespace FloatingBallGame.ViewModels
         private void UpdateBallPosition()
         {
             // The volume and flow averages are already computed as _flowAverage and _volumeAverage
-            var acc =  _volumeAverage;
-            var flow = _flowAverage;
+            double acc =  _volumeAverage;
+            double flow = _flowAverage;
+            if (flow < 0.001)
+                flow = 0.001;
+
+            // The bounded flow is the flow constrained within the bounds set in the settings file.  The 
+            // bounded flow is used to compute the goal bars
+            double boundedFlow = LimitFlow(flow);
+
+            // Here we calculate the ratio between the volume in dB SPL and the flow rate in L/s.  The 
+            // targeted ratio is specified in the settings, and is nominally 800 dB*s/L 
+            double goalVolume = _settings.GoalRatio * boundedFlow; 
+            
+            // Here we check how many seconds have elapsed since the last update, and we reset the 
+            // last clock measurement to the current time so that it's ready for the next pass through
+            double elapsed = (_stopwatch.ElapsedMilliseconds - _lastClock) / 1000.0;
+            _lastClock = _stopwatch.ElapsedMilliseconds;
+
+            // Now we compute and set the goal box's properties
+            double goalCenter = 20 * boundedFlow - 1.25;
+            double goalHalfHeight = 2.4 * boundedFlow;
+
+            this.GoalCenter = -1 * goalCenter * _settings.GraphicsScale;
+            this.GoalHeight = (2 * goalHalfHeight) * _settings.GraphicsScale + AppViewModel.Global.AppSettings.BallSize;
+
+            // Now we compute the ball's center location
+            double ballCenter = 20 * flow - 1.25;
+            
+            // Now we compute the ball's oscilation amplitude
+            // 45.0 is the volume floor at which there should be no oscilation 
+            double fraction = (acc - 45.0) / (goalVolume - 45.0);
+            double amplitude = goalHalfHeight * fraction;
+
 
             /*
                % Ball color will be determined based on SCORE.
@@ -414,39 +447,20 @@ namespace FloatingBallGame.ViewModels
             if (score < -15)
                 score = -15;
 
-            double ACC = 3 * acc;
+            double ACC = 0;
 
-            double freq = acc * 1 / 0.036;
+            double freq = acc * 27.7 / 1000 * _settings.Frequency;
 
-            // How much time has elapsed since the last update
-            double elapsed = (_stopwatch.ElapsedMilliseconds - _lastClock) / 1000.0;
-            _lastClock = _stopwatch.ElapsedMilliseconds;
-
+            
             //double iPhase = iPhase + 2 * Math.PI * freq / 60;
             // instantaneous phase
-            _instantaneousPhase += 2 * Math.PI * freq * elapsed;
+            _instantaneousPhase = (_instantaneousPhase + TwoPi * freq * elapsed) % TwoPi;
 
-            double ballCenter = 20 * flow - 1.25;
+            
             // -1 because the graphics canvas is inverted
-            this.Ball = -1 * (ballCenter * _settings.GraphicsScale); // (ballCenter + ACC * Math.Cos(_instantaneousPhase)) * _settings.GraphicsScale;
+            this.Ball = -1 * (ballCenter + amplitude * Math.Cos(_instantaneousPhase)) * _settings.GraphicsScale;
 
-            double goalHalfHeight = 2.4 * flow;
-            double goalCenter = ballCenter;
 
-            if (flow < 0.08)
-            {
-                goalHalfHeight = 0.192;
-                goalCenter = 1.6 - 1.25;
-            }
-
-            if (flow > 0.1)
-            {
-                goalHalfHeight = 0.24;
-                goalCenter = 2 - 1.25;
-            }
-
-            this.GoalCenter = -1 * goalCenter * _settings.GraphicsScale;
-            this.GoalHeight = (2 * goalHalfHeight) * _settings.GraphicsScale + AppViewModel.Global.AppSettings.BallSize;
             
             if (IsInTrial)
             {
