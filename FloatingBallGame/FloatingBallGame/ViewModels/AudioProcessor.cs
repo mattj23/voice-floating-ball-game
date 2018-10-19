@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 using FloatingBallGame.Annotations;
 using FloatingBallGame.Audio;
 using FloatingBallGame.Tools;
@@ -78,6 +79,19 @@ namespace FloatingBallGame.ViewModels
         private long _lastClock;
         private double _instantaneousPhase;
 
+        private SolidColorBrush _outOfLimitsBrush = new SolidColorBrush(Colors.Gray);
+
+        public Brush BallBrush
+        {
+            get => _ballBrush;
+            private set
+            {
+                if (Equals(value, _ballBrush)) return;
+                _ballBrush = value;
+                OnPropertyChanged();
+            }
+        }
+
         public double Volume
         {
             get => _volume;
@@ -123,35 +137,6 @@ namespace FloatingBallGame.ViewModels
             {
                 if (value.Equals(_ball)) return;
                 _ball = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Currently unused 
-        /// </summary>
-        public double UpperGoal
-        {
-            get => _upperGoal;
-            set
-            {
-                if (value.Equals(_upperGoal)) return;
-                _upperGoal = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Currently unused
-        /// </summary>
-        public double LowerGoal
-        {
-            get => _lowerGoal;
-            set
-            {
-                if (value.Equals(_lowerGoal)) return;
-                _lowerGoal = value;
-
                 OnPropertyChanged();
             }
         }
@@ -229,6 +214,7 @@ namespace FloatingBallGame.ViewModels
         public FixedListContainer<double> TrialStartFlowHistory;
 
         private bool _isFlowOutOfLimits;
+        private Brush _ballBrush;
 
         public AudioProcessor(ApplicationSettings settings)
         {
@@ -427,40 +413,23 @@ namespace FloatingBallGame.ViewModels
             double fraction = (acc - 45.0) / (goalVolume - 45.0);
             double amplitude = goalHalfHeight * fraction;
 
-
-            /*
-               % Ball color will be determined based on SCORE.
-               % SCORE quantifies how far the flow/acc ratio is from 0.8.
-               % SCORE should not go beyond the range [-15 15]
-               % since this is directly used for the color look up table.
-               rawSCORE = (acc - flow*0.8)/0.1*50;
-               if rawSCORE>=0,
-               SCORE = min([rawSCORE,15]);
-               else
-               SCORE = max([rawSCORE,-15]);
-               end
-            */
-            double rawScore = (acc - flow * _settings.GoalFlow) / 0.1 * 50;
-            double score = rawScore;
-            if (score > 15)
-                score = 15;
-            if (score < -15)
-                score = -15;
-
-            double ACC = 0;
-
+            // Compute the new frequency and the instantaneous phase
             double freq = acc * 27.7 / 1000 * _settings.Frequency;
-
-            
-            //double iPhase = iPhase + 2 * Math.PI * freq / 60;
-            // instantaneous phase
             _instantaneousPhase = (_instantaneousPhase + TwoPi * freq * elapsed) % TwoPi;
-
             
+            // Set the ball position
             // -1 because the graphics canvas is inverted
             this.Ball = -1 * (ballCenter + amplitude * Math.Cos(_instantaneousPhase)) * _settings.GraphicsScale;
 
-
+            // Set the ball's color 
+            if (IsFlowOutOfLimits)
+            {
+                BallBrush = _outOfLimitsBrush;
+            }
+            else
+            {
+                BallBrush = new SolidColorBrush(Colors.Blue);
+            }
             
             if (IsInTrial)
             {

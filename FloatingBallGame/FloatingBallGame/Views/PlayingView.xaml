@@ -57,6 +57,7 @@
         <!-- Ball ellipse, bound to Audio.Ball -->
         <Ellipse Height="{Binding AppSettings.BallSize}"
                  Width="{Binding AppSettings.BallSize}"
+                 Fill="{Binding Audio.BallBrush, Mode=OneWay}"
                  StrokeThickness="2"
                  Stroke="Black">
             <Ellipse.RenderTransform>
