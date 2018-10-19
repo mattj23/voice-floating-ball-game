@@ -71,9 +71,7 @@
                         <DataTrigger Binding="{Binding Audio.IsFlowOutOfLimits}" Value="True">
                             <Setter Property="Fill" Value="Red" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Audio.IsInTrial}" Value="False">
-                            <Setter Property="Visibility" Value="Hidden" />
-                        </DataTrigger>
+
                     </Style.Triggers>
                 </Style>
             </Ellipse.Style>
