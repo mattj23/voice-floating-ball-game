@@ -46,7 +46,6 @@
     // trial start/stop parameters
     "trial_start_threshold": 0.001, // L/s threshold
     "trial_start_window": 5, // Number of frames that must be above or below the threshold to start/stop the trial
-
     "history_window": 11, // Number of frames used to calculate the flow and volume
 
     // Audio properties
@@ -57,19 +56,11 @@
     "ball_size": 30,
     "graphics_scale": 100, // Scale factor for the graphics
 
-    "goal_flow": 0.8, // L/s
-
-    // Ball position is according to the following equation, which can be tuned with the four
-    // parameters given below
-    // flow_scale * (flow + flow_offset) + amplitude * volume * cos(frequency * pi * time);
-    "flow_scale": -500,
-    "flow_offset": -0.03,
-    "amplitude": 1.0,
-    "frequency": 1.0, // Frequency scaling factor
+    // Ball physics tunable parameters
+    "frequency": 1.0, // Frequency scaling factor, larger makes the ball oscilate faster
 
     "upper_flow_limit": 0.1, // L/s flow limit, above which the ball and error box turn red
-    "lower_flow_limit": 0.08,
+    "lower_flow_limit": 0.08, // L/s flow minimum, below which the ball and error box turn red
 
-    // Error bar properties
     "goal_ratio": 800 // goal ratio of dB divided by flow
 }

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Media;
 using FloatingBallGame.Annotations;
 using FloatingBallGame.Audio;
@@ -80,6 +81,7 @@ namespace FloatingBallGame.ViewModels
         private double _instantaneousPhase;
 
         private SolidColorBrush _outOfLimitsBrush = new SolidColorBrush(Colors.Gray);
+        private List<Tuple<double, SolidColorBrush>> _ballColors;
 
         public Brush BallBrush
         {
@@ -228,6 +230,24 @@ namespace FloatingBallGame.ViewModels
 
         public void Configure()
         {
+            // Build the ball color data
+            _ballColors = new List<Tuple<double, SolidColorBrush>>();
+            foreach (var keypoint in _settings.BallColorScale.OrderBy(x => x.Ratio))
+            {
+                try
+                {
+
+                    _ballColors.Add(Tuple.Create(keypoint.Ratio, new SolidColorBrush(keypoint.MakeColor())));
+                }
+                catch (Exception e)
+                {
+                    AppViewModel.Global.Dialog.ShowOkOnly("Error Loading Ball Colors",
+                        $"There was an error parsing the ball color keypoint with ratio:'{keypoint.Ratio}",
+                        Application.Current.Shutdown, 
+                        new SolidColorBrush(Colors.LightCoral));
+                }
+            }
+
             // Unregister the volume and flow providers from the data available handlers.  This is
             // to prevent multiple subscriptions if the providers change.
             if (_volumeProvider != null)
@@ -422,13 +442,25 @@ namespace FloatingBallGame.ViewModels
             this.Ball = -1 * (ballCenter + amplitude * Math.Cos(_instantaneousPhase)) * _settings.GraphicsScale;
 
             // Set the ball's color 
+            BallBrush = null;
             if (IsFlowOutOfLimits)
             {
                 BallBrush = _outOfLimitsBrush;
             }
             else
             {
-                BallBrush = new SolidColorBrush(Colors.Blue);
+                var ratioFraction = (_volumeAverage / _flowAverage) / _settings.GoalRatio;
+                for (int i = 0; i < _ballColors.Count; i++)
+                {
+                    if (_ballColors[i].Item1 > ratioFraction)
+                    {
+                        BallBrush = _ballColors[i].Item2;
+                        break;
+                    }
+                }
+
+                if (BallBrush == null)
+                    BallBrush = _ballColors.Last().Item2;
             }
             
             if (IsInTrial)

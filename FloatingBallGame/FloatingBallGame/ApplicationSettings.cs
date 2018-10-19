@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Documents;
+using System.Windows.Media;
 using FloatingBallGame.Audio;
 
 namespace FloatingBallGame
@@ -12,10 +13,10 @@ namespace FloatingBallGame
 
         public int SampleRate { get; set; }
 
-        public double FlowScale { get; set; }
-        public double FlowOffset { get; set; }
+        /// <summary>
+        /// Frequency scaling factor, larger makes the ball oscilate faster
+        /// </summary>
         public double Frequency { get; set; }
-        public double Amplitude { get; set; }
 
         public double UpperFlowLimit { get; set; }
         public double LowerFlowLimit { get; set; }
@@ -29,8 +30,26 @@ namespace FloatingBallGame
 
         public int HistoryWindow { get; set; }
 
-        public double GoalFlow { get; set; }
-
         public double GraphicsScale { get; set; }
+
+        public ColorScaleKeypoint[] BallColorScale { get; set; }
+    }
+
+    public class ColorScaleKeypoint
+    {
+        /// <summary>
+        /// The fraction of the goal ratio that this keypoint's colors apply at
+        /// </summary>
+        public double Ratio { get; set; }
+
+        /// <summary>
+        /// The RGB value for this keypoint
+        /// </summary>
+        public double[] Rgb { get; set; }
+
+        public Color MakeColor()
+        {
+            return Color.FromRgb((byte) (Rgb[0] * 255), (byte) (Rgb[1] * 255), (byte) (Rgb[2] * 255));
+        }
     }
 }
