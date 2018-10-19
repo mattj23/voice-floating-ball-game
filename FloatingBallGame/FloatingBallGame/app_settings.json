@@ -14,6 +14,35 @@
         }
     ],
 
+    // The ball color scale works as a selection of colors between the following keypoints.  Each point is defined
+    // by the ratio, which is the fraction of the goal ratio at which the RGB values are the dominant colors.  During each
+    // frame update, the ratio of volume to flow is computed.  The program starts at the smallest ratio keypoint and goes through 
+    // each keypoint in ascending order, and as soon as it finds one that's bigger than the computed ratio it applies that color. 
+    // If it gets to the end of the scale it uses the highest ratio color.
+    "ball_color_scale": [
+        {
+            "ratio": 0.9, // Below 90% of the goal ratio, the ball is blue
+            "rgb": [ 0, 0, 1 ]
+        },
+        {
+            "ratio": 0.95, // From 90% to 95% the ball is light blue
+            "rgb": [ 0.5, 0.5, 1 ]
+        },
+        {
+            "ratio": 1.05, // From 95% to 105% the ball is white
+            "rgb": [ 1, 1, 1 ]
+        },
+        {
+            "ratio": 1.1, // From 105% to 110% the ball is light red
+            "rgb": [ 1.0, 0.5, 0.5 ]
+        },
+        {
+            "ratio": 2.0, // Anything above 110% the ball is blue (because of the way the algorithm works the value here doesn't matter as long as its above 1.1
+            "rgb":  [1.0, 0.0, 0.0] 
+        }
+
+    ],
+
     // trial start/stop parameters
     "trial_start_threshold": 0.001, // L/s threshold
     "trial_start_window": 5, // Number of frames that must be above or below the threshold to start/stop the trial
@@ -28,7 +57,7 @@
     "ball_size": 30,
     "graphics_scale": 100, // Scale factor for the graphics
 
-    "goal_flow":  0.8, // L/s 
+    "goal_flow": 0.8, // L/s
 
     // Ball position is according to the following equation, which can be tuned with the four
     // parameters given below
@@ -36,7 +65,7 @@
     "flow_scale": -500,
     "flow_offset": -0.03,
     "amplitude": 1.0,
-    "frequency": 1.0,   // Frequency scaling factor
+    "frequency": 1.0, // Frequency scaling factor
 
     "upper_flow_limit": 0.1, // L/s flow limit, above which the ball and error box turn red
     "lower_flow_limit": 0.08,
