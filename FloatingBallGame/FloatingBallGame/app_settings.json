@@ -40,8 +40,18 @@
             "ratio": 2.0, // Anything above 110% the ball is blue (because of the way the algorithm works the value here doesn't matter as long as its above 1.1
             "rgb": [ 1.0, 0.0, 0.0 ]
         }
-
     ],
+
+    // The following two parameters control the smoothness of the color transitions by interpolating a stored set of colors
+    // around the keypoints.  A larger blend zone will appear visually smoother, since changes in flow ratio will produce less
+    // dramatic color changes, but will also steal color space from the solid colors, making it more difficult to know where the
+    // ratio is.  More color blend steps to a point will make smoother color transitions as well, but will also be more taxing
+    // on the computer.
+    //
+    // Be careful to make sure that no instance of a ratio + color_blend_zone is greater than the next highest keypoint ratio
+    // minus color_blend_zone, as the behavior in such a case will be undefined.
+    "color_blend_zone": 0.02, // The +/- zone around a keypoint where the color blends smoothly
+    "color_blend_steps": 5, // The number of color interpolation steps to transition from one color to the next
 
     // trial start/stop parameters
     "trial_start_threshold": 0.001, // L/s threshold

@@ -232,12 +232,34 @@ namespace FloatingBallGame.ViewModels
         {
             // Build the ball color data
             _ballColors = new List<Tuple<double, SolidColorBrush>>();
-            foreach (var keypoint in _settings.BallColorScale.OrderBy(x => x.Ratio))
+            var orderedKeypoints = _settings.BallColorScale.OrderBy(x => x.Ratio).ToArray();
+            var lastColor = Tuple.Create((double) (_outOfLimitsBrush.Color.R / 255.0),
+                (double) (_outOfLimitsBrush.Color.G / 255.0), (double) (_outOfLimitsBrush.Color.B / 255.0));
+
+            foreach (var keypoint in orderedKeypoints)
             {
                 try
                 {
+                    // For each keypoint we must add an expansion of colors that start from keypoint.Ration - _settings.
 
-                    _ballColors.Add(Tuple.Create(keypoint.Ratio, new SolidColorBrush(keypoint.MakeColor())));
+                    double startRatio = keypoint.Ratio - _settings.ColorBlendZone;
+                    double endRatio = keypoint.Ratio + _settings.ColorBlendZone;
+
+                    for (int i = 0; i <= _settings.ColorBlendSteps; i++)
+                    {
+                        double fraction = (double) i / (double) _settings.ColorBlendSteps;
+                        double ratio = startRatio + fraction * (endRatio - startRatio);
+                        double red = lastColor.Item1 * (1 - fraction) + keypoint.Rgb[0] * fraction;
+                        double green = lastColor.Item2 * (1 - fraction) + keypoint.Rgb[1] * fraction;
+                        double blue = lastColor.Item3 * (1 - fraction) + keypoint.Rgb[2] * fraction;
+
+                        var interpolated = new ColorScaleKeypoint {Ratio = ratio, Rgb = new[] {red, green, blue}};
+                        _ballColors.Add(Tuple.Create(ratio, new SolidColorBrush(interpolated.MakeColor())));
+                    }
+
+                    lastColor = Tuple.Create(keypoint.Rgb[0], keypoint.Rgb[1], keypoint.Rgb[2]);
+
+                    //_ballColors.Add(Tuple.Create(keypoint.Ratio, new SolidColorBrush(keypoint.MakeColor())));
                 }
                 catch (Exception e)
                 {

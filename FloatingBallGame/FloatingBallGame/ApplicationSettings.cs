@@ -35,9 +35,10 @@ namespace FloatingBallGame
         public double GraphicsScale { get; set; }
         public double GraphicsOrigin { get; set; }
 
-
+        // Color elements
         public ColorScaleKeypoint[] BallColorScale { get; set; }
-
+        public double ColorBlendZone { get; set; }
+        public int ColorBlendSteps { get; set; }
         
     }
 
