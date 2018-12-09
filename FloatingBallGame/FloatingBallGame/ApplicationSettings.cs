@@ -30,9 +30,15 @@ namespace FloatingBallGame
 
         public int HistoryWindow { get; set; }
 
+        // Graphics scale and origin determines the up and down shift of the neutral graphics position (origin) and the 
+        // extent of the range of motion (scale).  Between the two of them the graphics can be adusted to fit any space.
         public double GraphicsScale { get; set; }
+        public double GraphicsOrigin { get; set; }
+
 
         public ColorScaleKeypoint[] BallColorScale { get; set; }
+
+        
     }
 
     public class ColorScaleKeypoint

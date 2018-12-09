@@ -422,7 +422,7 @@ namespace FloatingBallGame.ViewModels
             double goalCenter = 20 * boundedFlow - 1.25;
             double goalHalfHeight = 2.4 * boundedFlow;
 
-            this.GoalCenter = -1 * goalCenter * _settings.GraphicsScale;
+            this.GoalCenter = -1 * goalCenter * _settings.GraphicsScale + _settings.GraphicsOrigin;
             this.GoalHeight = (2 * goalHalfHeight) * _settings.GraphicsScale + AppViewModel.Global.AppSettings.BallSize;
 
             // Now we compute the ball's center location
@@ -439,7 +439,7 @@ namespace FloatingBallGame.ViewModels
             
             // Set the ball position
             // -1 because the graphics canvas is inverted
-            this.Ball = -1 * (ballCenter + amplitude * Math.Cos(_instantaneousPhase)) * _settings.GraphicsScale;
+            this.Ball = -1 * (ballCenter + amplitude * Math.Cos(_instantaneousPhase)) * _settings.GraphicsScale + _settings.GraphicsOrigin;
 
             // Set the ball's color 
             BallBrush = null;

@@ -16,8 +16,8 @@
 
     // The ball color scale works as a selection of colors between the following keypoints.  Each point is defined
     // by the ratio, which is the fraction of the goal ratio at which the RGB values are the dominant colors.  During each
-    // frame update, the ratio of volume to flow is computed.  The program starts at the smallest ratio keypoint and goes through 
-    // each keypoint in ascending order, and as soon as it finds one that's bigger than the computed ratio it applies that color. 
+    // frame update, the ratio of volume to flow is computed.  The program starts at the smallest ratio keypoint and goes through
+    // each keypoint in ascending order, and as soon as it finds one that's bigger than the computed ratio it applies that color.
     // If it gets to the end of the scale it uses the highest ratio color.
     "ball_color_scale": [
         {
@@ -38,7 +38,7 @@
         },
         {
             "ratio": 2.0, // Anything above 110% the ball is blue (because of the way the algorithm works the value here doesn't matter as long as its above 1.1
-            "rgb":  [1.0, 0.0, 0.0] 
+            "rgb": [ 1.0, 0.0, 0.0 ]
         }
 
     ],
@@ -52,9 +52,11 @@
     "sample_rate": 22050,
     "buffer_ms": 50,
 
-    // Graphics stuff
+    // Graphics parameters allow the visual presentation of the game to
+    // be altered.
     "ball_size": 30,
     "graphics_scale": 100, // Scale factor for the graphics
+    "graphics_origin": 100, // vertical offset for the graphics, positive values shift everything lower
 
     // Ball physics tunable parameters
     "frequency": 1.0, // Frequency scaling factor, larger makes the ball oscilate faster
