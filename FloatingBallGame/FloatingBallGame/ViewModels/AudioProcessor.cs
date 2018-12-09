@@ -465,13 +465,14 @@ namespace FloatingBallGame.ViewModels
 
             // Set the ball's color 
             BallBrush = null;
+            
+            var ratioFraction = (_volumeAverage / _flowAverage) / _settings.GoalRatio;
             if (IsFlowOutOfLimits)
             {
                 BallBrush = _outOfLimitsBrush;
             }
             else
             {
-                var ratioFraction = (_volumeAverage / _flowAverage) / _settings.GoalRatio;
                 for (int i = 0; i < _ballColors.Count; i++)
                 {
                     if (_ballColors[i].Item1 > ratioFraction)
@@ -487,11 +488,19 @@ namespace FloatingBallGame.ViewModels
             
             if (IsInTrial)
             {
+                var color = (BallBrush as SolidColorBrush)?.Color;
                 var sample = new TestSample
                 {
                     Volume = this.Volume,
                     Flow = this.Flow,
-                    Time = (DateTime.Now - TrialStart).TotalSeconds
+                    Time = (DateTime.Now - TrialStart).TotalSeconds,
+                    Error = ratioFraction,
+                    BallCenter = this.Ball,
+                    GoalLower = this.GoalCenter - this.GoalHeight,
+                    GoalUpper = this.GoalCenter + this.GoalHeight,
+                    BallRed = color?.R,
+                    BallBlue = color?.B,
+                    BallGreen = color?.G
                 };
 
                 this.Samples.Add(sample);
