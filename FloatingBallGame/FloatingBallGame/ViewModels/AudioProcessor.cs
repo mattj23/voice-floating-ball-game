@@ -489,10 +489,12 @@ namespace FloatingBallGame.ViewModels
                 the error is the absolute difference between the current ratio and the “goal_ratio”
 
                 2. When the flow is above the “upper_flow_limit” – then the error is the sum of two 
-                absolute differences (error = |current_flow – upper_flow_limit| + |current_loudness – loudness_associated_with_upper_flow_limit|) The “loudness_associated_with_upper_flow_limit” will be based on the “goal_ratio”
+                absolute differences (error = |current_flow – upper_flow_limit| + |current_loudness – loudness_associated_with_upper_flow_limit|)
+                The “loudness_associated_with_upper_flow_limit” will be based on the “goal_ratio”
 
                 3. When the flow is below the “lower_flow_limit” – then the error is the sum of two 
-                absolute differences (error = |current_flow – lower_flow_limit| + |current_loudness – loudness_associated_with_lower_flow_limit|) The “loudness_associated_with_lower_flow_limit” will be based on the “goal_ratio”
+                absolute differences (error = |current_flow – lower_flow_limit| + |current_loudness – loudness_associated_with_lower_flow_limit|)
+                The “loudness_associated_with_lower_flow_limit” will be based on the “goal_ratio”
 
              */
 
