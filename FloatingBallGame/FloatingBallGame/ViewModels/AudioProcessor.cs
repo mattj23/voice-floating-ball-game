@@ -401,22 +401,39 @@ namespace FloatingBallGame.ViewModels
         private double Ln(double x) => Math.Log(x, Math.E);
         private double Sq(double x) => x * x;
 
-        private double LimitFlow(double flow)
+        /// <summary>
+        /// Bounds the flow rate by the upper and lower flow limts
+        /// </summary>
+        /// <param name="flow"></param>
+        /// <returns></returns>
+        private double BoundFlowRate(double flow)
         {
             if (flow < _settings.LowerFlowLimit)
             {
-                IsFlowOutOfLimits = true;
                 return _settings.LowerFlowLimit;
             }
 
             if (flow > _settings.UpperFlowLimit)
             {
-                IsFlowOutOfLimits = true;
                 return _settings.UpperFlowLimit;
             }
 
-            IsFlowOutOfLimits = false;
             return flow;
+        }
+
+        private FlowBoundState GetFlowState(double flow)
+        {
+            if (flow < _settings.LowerFlowLimit)
+            {
+                return FlowBoundState.BelowLimit;
+            }
+
+            if (flow > _settings.UpperFlowLimit)
+            {
+                return FlowBoundState.AboveLimit;
+            }
+
+            return FlowBoundState.InLimits;
         }
 
         private void UpdateBallPosition()
@@ -429,7 +446,10 @@ namespace FloatingBallGame.ViewModels
 
             // The bounded flow is the flow constrained within the bounds set in the settings file.  The 
             // bounded flow is used to compute the goal bars
-            double boundedFlow = LimitFlow(flow);
+            FlowBoundState flowState = GetFlowState(flow);
+            this.IsFlowOutOfLimits = flowState != FlowBoundState.InLimits;
+            double boundedFlow = BoundFlowRate(flow);
+
 
             // Here we calculate the ratio between the volume in dB SPL and the flow rate in L/s.  The 
             // targeted ratio is specified in the settings, and is nominally 800 dB*s/L 
@@ -463,9 +483,50 @@ namespace FloatingBallGame.ViewModels
             // -1 because the graphics canvas is inverted
             this.Ball = -1 * (ballCenter + amplitude * Math.Cos(_instantaneousPhase)) * _settings.GraphicsScale + _settings.GraphicsOrigin;
 
+            /* Email from Jarrad on 1/9/2019
+
+                1. When the flow is within the “upper_flow_limit” and “lower_flow_limit” boundaries, 
+                the error is the absolute difference between the current ratio and the “goal_ratio”
+
+                2. When the flow is above the “upper_flow_limit” – then the error is the sum of two 
+                absolute differences (error = |current_flow – upper_flow_limit| + |current_loudness – loudness_associated_with_upper_flow_limit|) The “loudness_associated_with_upper_flow_limit” will be based on the “goal_ratio”
+
+                3. When the flow is below the “lower_flow_limit” – then the error is the sum of two 
+                absolute differences (error = |current_flow – lower_flow_limit| + |current_loudness – loudness_associated_with_lower_flow_limit|) The “loudness_associated_with_lower_flow_limit” will be based on the “goal_ratio”
+
+             */
+
+            double error = Double.NaN;
+
+            // Compute the error
+            if (flowState == FlowBoundState.InLimits)
+            {
+                double currentRatio = (_volumeAverage / _flowAverage);
+                error = Math.Abs(currentRatio - _settings.GoalRatio);
+            }
+            else if (flowState == FlowBoundState.AboveLimit)
+            {
+                // Compute the upper flow limit volume
+                double upperLimitVolume = _settings.UpperFlowLimit / _settings.GoalRatio;
+
+                // Calculate the error
+                error = Math.Abs(_flowAverage - _settings.UpperFlowLimit) + Math.Abs(_volumeAverage - upperLimitVolume);
+            }
+            else if (flowState == FlowBoundState.BelowLimit)
+            {
+                // Compute the lower flow limit volume
+                double lowerLimitVolume = _settings.LowerFlowLimit / _settings.GoalRatio;
+
+                // Calculate the error
+                error = Math.Abs(_flowAverage - _settings.LowerFlowLimit) + Math.Abs(_volumeAverage - lowerLimitVolume);
+            }
+            else
+            {
+                throw new Exception($"Unhandled flow state during error computation for {flowState.ToString()}");
+            }
+
             // Set the ball's color 
             BallBrush = null;
-            
             var ratioFraction = (_volumeAverage / _flowAverage) / _settings.GoalRatio;
             if (IsFlowOutOfLimits)
             {
@@ -473,11 +534,11 @@ namespace FloatingBallGame.ViewModels
             }
             else
             {
-                for (int i = 0; i < _ballColors.Count; i++)
+                foreach (var t in _ballColors)
                 {
-                    if (_ballColors[i].Item1 > ratioFraction)
+                    if (t.Item1 > ratioFraction)
                     {
-                        BallBrush = _ballColors[i].Item2;
+                        BallBrush = t.Item2;
                         break;
                     }
                 }
@@ -494,7 +555,7 @@ namespace FloatingBallGame.ViewModels
                     Volume = this.Volume,
                     Flow = this.Flow,
                     Time = (DateTime.Now - TrialStart).TotalSeconds,
-                    Error = ratioFraction,
+                    Error = error,
                     BallCenter = this.Ball,
                     GoalLower = this.GoalCenter - this.GoalHeight,
                     GoalUpper = this.GoalCenter + this.GoalHeight,
