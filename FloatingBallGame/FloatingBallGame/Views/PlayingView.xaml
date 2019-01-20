@@ -37,6 +37,12 @@
                 <TranslateTransform Y="{Binding Audio.GoalCenter}" />
             </Rectangle.RenderTransform>
             <Rectangle.Style>
+                <!-- This style is for a simple white background -->
+                <Style TargetType="{x:Type Shape}">
+                    <Setter Property="Fill" Value="White" />
+                </Style>
+
+                <!-- This style turns the box red when the ball is outside of the goal
                 <Style TargetType="{x:Type Shape}">
                     <Setter Property="Visibility" Value="Visible" />
                     <Setter Property="Fill" Value="AliceBlue" />
@@ -49,6 +55,8 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
+                -->
+                
             </Rectangle.Style>
         </Rectangle>
 
