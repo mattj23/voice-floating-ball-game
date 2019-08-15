@@ -350,7 +350,7 @@ namespace FloatingBallGame.ViewModels
 
             // Get the number of times the ball was in the goal ratio
             var samplesInGoal = this.Samples.Select(x =>
-                x.RatioFraction >= _settings.ScoringRatioMax && x.RatioFraction <= _settings.ScoringRatioMax)
+                x.RatioFraction >= _settings.ScoringRatioMin && x.RatioFraction <= _settings.ScoringRatioMax)
                 .ToArray();
             
             double secondsInGoal = 0;
