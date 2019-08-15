@@ -39,6 +39,16 @@ namespace FloatingBallGame
         public ColorScaleKeypoint[] BallColorScale { get; set; }
         public double ColorBlendZone { get; set; }
         public int ColorBlendSteps { get; set; }
+
+        /// <summary>
+        /// Gets or sets the minimum goal ratio for it to count as scoring
+        /// </summary>
+        public double ScoringRatioMin { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum goal ratio for it to count as scoring
+        /// </summary>
+        public double ScoringRatioMax { get; set; }
         
     }
 

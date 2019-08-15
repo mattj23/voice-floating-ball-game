@@ -74,5 +74,11 @@
     "upper_flow_limit": 0.1, // L/s flow limit, above which the ball and error box turn red
     "lower_flow_limit": 0.08, // L/s flow minimum, below which the ball and error box turn red
 
-    "goal_ratio": 800 // goal ratio of dB divided by flow
+    "goal_ratio": 800, // goal ratio of dB divided by flow
+
+    // Scoring Ratio min and max
+    // This is the upper and lower bound for the ball counting as being in the target zone. In general this should overlap with
+    // the white color keypoints, but can be adjusted independently of it if necessary
+    "scoring_ratio_min": 0.95,
+    "scoring_ratio_max":  1.05 
 }

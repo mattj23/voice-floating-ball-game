@@ -4,7 +4,11 @@ namespace FloatingBallGame.Audio
 {
     public class TestSample
     {
+        /// <summary>
+        /// Gets or sets the time of this sample, measured in seconds, from the first frame of the trial
+        /// </summary>
         public double Time { get; set; }
+
         public double Volume { get; set; }
         public double Flow { get; set; }
         public double BallCenter { get; set; }
@@ -19,5 +23,7 @@ namespace FloatingBallGame.Audio
         public byte? BallBlue { get; set; }
 
         public double Error{ get; set; }
+
+        public double RatioFraction { get; set; }
     }
 }

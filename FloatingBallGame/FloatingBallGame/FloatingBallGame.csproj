@@ -79,6 +79,7 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ApplicationSettings.cs" />
     <Compile Include="Tools\FixedListContainer.cs" />
+    <Compile Include="Tools\FlowBoundState.cs" />
     <Compile Include="Tools\Processing.cs" />
     <Compile Include="Tools\DelegateCommand.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />

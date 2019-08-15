@@ -215,8 +215,23 @@ namespace FloatingBallGame.ViewModels
 
         public FixedListContainer<double> TrialStartFlowHistory;
 
+        /// <summary>
+        /// Gets or sets a message which appears after a trial completes, but is cleared when the next trial starts
+        /// </summary>
+        public string TrialEndMessage
+        {
+            get => _trialEndMessage;
+            set
+            {
+                if (value == _trialEndMessage) return;
+                _trialEndMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool _isFlowOutOfLimits;
         private Brush _ballBrush;
+        private string _trialEndMessage;
 
         public AudioProcessor(ApplicationSettings settings)
         {
@@ -325,10 +340,33 @@ namespace FloatingBallGame.ViewModels
             TrialStart = DateTime.Now;
             Samples.Clear();
             _instantaneousPhase = 0;
+            this.TrialEndMessage = "";
         }
 
         private void StopTrial()
         {
+            // Get the trial overall length
+            var length = this.Samples.Last().Time;
+
+            // Get the number of times the ball was in the goal ratio
+            var samplesInGoal = this.Samples.Select(x =>
+                x.RatioFraction >= _settings.ScoringRatioMax && x.RatioFraction <= _settings.ScoringRatioMax)
+                .ToArray();
+            
+            double secondsInGoal = 0;
+            int goalEntryCount = 0;
+            for (int i = 0; i < this.Samples.Count - 1; i++)
+            {
+                if (!samplesInGoal[i] && samplesInGoal[i + 1])
+                    goalEntryCount++;
+
+                if (samplesInGoal[i])
+                    secondsInGoal += (this.Samples[i + 1].Time - this.Samples[i].Time);
+            }
+
+            this.TrialEndMessage =
+                $"You voiced for {length:F0} seconds and the ball changed to white {goalEntryCount} times ({secondsInGoal:F1}s total)";
+
             IsInTrial = false;
             File.WriteAllText($"trial {TrialStart:yyyy-MM-dd-hh-mm-ss}.json", JsonConvert.SerializeObject(Samples, Formatting.Indented));
             Samples.Clear();
@@ -563,7 +601,8 @@ namespace FloatingBallGame.ViewModels
                     GoalUpper = this.GoalCenter + this.GoalHeight,
                     BallRed = color?.R,
                     BallBlue = color?.B,
-                    BallGreen = color?.G
+                    BallGreen = color?.G,
+                    RatioFraction = ratioFraction
                 };
 
                 this.Samples.Add(sample);

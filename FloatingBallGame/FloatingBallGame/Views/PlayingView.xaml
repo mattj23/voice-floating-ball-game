@@ -83,13 +83,20 @@
             </Ellipse.Style>
         </Ellipse>
 
-        <TextBlock FontSize="14"
+        <TextBlock Grid.Row="0" 
+                   FontSize="14"
                    FontWeight="Bold"
                    VerticalAlignment="Top"
                    Margin="10"
                    Style="{StaticResource ShowInTrial}">
             Trial Recording
         </TextBlock>
+
+        <TextBlock Grid.Row="0"
+                   FontWeight="Bold"
+                   VerticalAlignment="Bottom"
+                   Margin="10"
+                   Text="{Binding Audio.TrialEndMessage}" />
 
         <!-- Information panel, bound to Audio.Volume and Audio.Flow -->
         <Border Grid.Row="1"
