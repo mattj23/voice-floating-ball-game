@@ -94,7 +94,8 @@
 
         <TextBlock Grid.Row="0"
                    FontWeight="Bold"
-                   VerticalAlignment="Bottom"
+                   VerticalAlignment="Top"
+                   FontSize="20"
                    Margin="10"
                    Text="{Binding Audio.TrialEndMessage}" />
 

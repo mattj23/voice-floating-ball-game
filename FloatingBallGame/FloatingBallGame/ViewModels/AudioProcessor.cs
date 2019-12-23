@@ -357,15 +357,20 @@ namespace FloatingBallGame.ViewModels
             int goalEntryCount = 0;
             for (int i = 0; i < this.Samples.Count - 1; i++)
             {
+                // The number of times it went into the goal
                 if (!samplesInGoal[i] && samplesInGoal[i + 1])
                     goalEntryCount++;
 
+                // The amount of time spent in the goal region
                 if (samplesInGoal[i])
                     secondsInGoal += (this.Samples[i + 1].Time - this.Samples[i].Time);
             }
 
+            // Average error
+            double avgError = this.Samples.Select(x => x.Error).Average();
+
             this.TrialEndMessage =
-                $"You voiced for {length:F0} seconds and the ball changed to white {goalEntryCount} times ({secondsInGoal:F1}s total)";
+                $"You voiced for {length:F0} seconds with an average error of {avgError:F1} pixels.";
 
             IsInTrial = false;
             File.WriteAllText($"trial {TrialStart:yyyy-MM-dd-hh-mm-ss}.json", JsonConvert.SerializeObject(Samples, Formatting.Indented));
