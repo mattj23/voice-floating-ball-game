@@ -1,2 +1,127 @@
 # voice-floating-ball-game
-Floating ball game based on vocal airflow and volume
+
+Floating ball game based on vocal airflow and volume, built for vocal motor learning research.
+
+A participant sustains a vowel while a ball floats on screen. The target is a specified ratio of
+loudness to oral airflow: 800 dB·s/L by default, the "resonant voice" target. Airflow sets the
+positions of the ball and its goal box. Loudness sets how far and how fast the ball swings. The
+ball's color indicates how close the ratio is to the target. Trials start and stop automatically as
+the participant begins and stops voicing. The game saves a summary and per-frame data for each
+trial.
+
+## Repository layout
+
+| Directory | What it is |
+|---|---|
+| `src/`, `tests/`, `config/` | The current cross-platform application (.NET 8, Avalonia, ReactiveUI) |
+| `FloatingBallGame/` | The original WPF application, kept as reference. Windows only, .NET Framework 4.6.1 |
+
+The rebuilt application runs on Windows, Linux, and macOS. It reads airflow from a Sensirion
+SFM3x00 flow meter over a Nicolay serial connector using
+[NicolaySerialSFM3x00](https://www.nuget.org/packages/NicolaySerialSFM3x00). The original measured
+airflow with an analog transducer plugged into a sound card line-in, which is why the flow
+calibration workflow is no longer necessary because the SFM3x00 is factory-calibrated and reports
+engineering units directly.
+
+## Run the application
+
+```bash
+dotnet run --project src/VoiceBallGame.App
+```
+
+To run or develop the game without attached hardware:
+
+```bash
+dotnet run --project src/VoiceBallGame.App -- --demo
+```
+
+`--demo` plays against a simulated participant who voices in bouts around the target ratio. The
+same simulated inputs, and any recorded session, are also selectable from the setup screen.
+
+Run the tests:
+
+```bash
+dotnet test
+```
+
+## Setting up a session
+
+1. **Pick the flow meter.** Serial ports are listed by name. On Linux the meter usually appears as
+   `/dev/ttyUSB0`.
+2. **Pick and calibrate the microphone.** A microphone reports a signal level with no absolute
+   meaning, so the game cannot know how loud the participant is until one known loudness has been
+   measured. Produce a steady sound for at least three seconds with a sound level meter beside the
+   microphone, then enter the meter reading. The game stores the calibration for each device in
+   `calibrations.json`. Calibrate again if the microphone or its gain changes.
+3. **Enter the subject and session identifiers.** They name the files this session produces.
+4. **Begin.** Trials record themselves whenever the participant voices.
+
+## Data output
+
+The game writes one JSON file and one CSV file per trial to the directory specified by
+`output_directory`. Each file uses the name `{subject}_{session}_{yyyyMMdd_HHmmss}_trial{n}`. The
+JSON file contains a summary (length, time on target, number of target entries, and average error)
+followed by every frame. The CSV file contains only the frames for analysis.
+
+## Configuration
+
+Everything an experimenter tunes is in `config/app_settings.json`, which is copied next to the
+executable at build time. It contains comments, and the game never rewrites it. If a value is
+unusable, the game identifies the problem and refuses to start. This prevents the game from running
+with an unintended target.
+
+## Platform notes
+
+- **Linux:** your user must be in the `dialout` group to open a serial port. Add yourself with
+  `sudo usermod -aG dialout $USER`, then log out and back in.
+- **macOS:** the app bundle needs an `NSMicrophoneUsageDescription` entry, and the first run prompts
+  for microphone access.
+- **Windows:** no additional setup.
+
+## Changes that affect data compatibility
+
+The port fixed several defects. Each is documented where it was fixed, and the ones that change
+recorded numbers are listed here because they affect comparability with data collected by the WPF
+version.
+
+- **The ball's colors were shifted one band.** The color lookup only held the blend zones around
+  each keypoint and left the space between them empty, so a lookup falling in the gap picked up the
+  previous band's color. On-target ratios rendered light blue, and white appeared roughly between
+  1.05 and 1.10, outside the scoring window that counts 0.95 to 1.05 as on target. The participant's
+  color feedback and the score therefore disagreed. Colors now match the bands the settings file
+  documents. **Account for this visual-feedback change when you compare sessions recorded before
+  and after the port.**
+- **Out-of-limit error was far too large.** The loudness associated with a flow limit was computed
+  as `limit / goal_ratio` instead of `goal_ratio * limit`, giving 0.000125 dB rather than 80 dB, so
+  the loudness term amounted to the raw reading. Set `legacy_compat_scoring` to reproduce the old
+  formula when comparing against old data. Error inside the flow limits is unaffected.
+- **The recorded goal band was twice as tall as the one drawn.** The original calculation extended
+  the box's full height on either side of its center instead of extending it by half its height.
+- **The end-of-trial message reported "pixels"** for a value that was a ratio, and time in the goal
+  and entries into the goal were computed and then discarded. The message now reports trial length,
+  share of the trial on target, entries into the target, and average distance from target as a
+  percentage. All of these are saved with the trial.
+- **Levels depended on buffer length.** The old "RMS" summed squares without dividing by the sample
+  count, so changing `buffer_ms` silently rescaled every calibration. **Microphone calibrations must
+  be redone on this version**; old values are not comparable.
+- **Trials twelve hours apart overwrote each other** because the file name used a 12-hour clock
+  with no AM/PM marker.
+- **Short trials could crash the game** because the summary calculation did not guard against an
+  empty sample list or a zero-length trial.
+- **Ball physics constants are now configurable** rather than buried in the code: `flow_position_scale`,
+  `flow_position_offset`, `goal_half_height_factor`, `volume_floor_db` and `frequency_base`.
+
+## Open research questions
+
+- **Units.** The SFM3x00 reports *standard* liters per minute; the game converts to L/s. The old
+  analog transducer measured at ambient conditions. If the protocol needs a BTPS correction
+  (roughly 1.07 to 1.10 for exhaled air), set `flow_correction_factor`. It defaults to 1.0, which
+  records the sensor's standard-conditions reading unchanged.
+- **Which error measure drives feedback.** The protocol's error is in dB·s/L inside the flow limits
+  but in dB plus L/s outside them, so the two branches are not on the same scale and averaging them
+  mixes units. Every frame now also records `ratioError`, a dimensionless distance from target with
+  a consistent meaning in both cases. The game shows this value to the participant and continues
+  to record the protocol error as `error`.
+- **Whether the flow limits still suit the new sensor.** `upper_flow_limit` and `lower_flow_limit`
+  were tuned against the old transducer chain. They are physiological values so they probably still
+  hold, but they are worth confirming.

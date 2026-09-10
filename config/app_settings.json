@@ -1,0 +1,110 @@
+{
+    // ---------------------------------------------------------------------------------------
+    // Floating Ball Game settings
+    //
+    // Edit this file with any text editor. The game reads it at startup and never writes it
+    // back, so these comments are safe. If a value is missing, the game uses its built-in
+    // default. If a value is unusable, the game identifies the problem and does not start.
+    // ---------------------------------------------------------------------------------------
+
+    // ---- Microphone and flow meter --------------------------------------------------------
+
+    "sample_rate": 22050, // Microphone sample rate in Hz
+    "buffer_ms": 50, // Microphone buffer length; sets how often loudness is measured
+    "engine_tick_ms": 50, // How often the game updates. 50 ms matches the original's 20 Hz.
+    "stale_ticks": 10, // Ticks a device may go silent before the game reports a lost signal
+    "serial_baud_rate": 115200, // Baud rate for the flow meter's serial connection
+
+    // The flow meter reports standard liters per minute, which the game converts to liters per
+    // second. This factor is applied after that conversion. Leave it at 1.0 to record the
+    // sensor's standard-conditions reading; raise it (roughly 1.07 to 1.10 for exhaled air) if
+    // the protocol calls for a body temperature and pressure correction.
+    "flow_correction_factor": 1.0,
+
+    // ---- Smoothing and trial detection ----------------------------------------------------
+
+    "history_window": 11, // Frames averaged to produce the flow and loudness the game uses
+    "trial_start_window": 5, // Frames averaged when deciding a trial has begun or ended
+    "trial_start_threshold": 0.001, // L/s; flow above this starts a trial, below it ends one
+
+    // ---- The target -----------------------------------------------------------------------
+
+    "goal_ratio": 800, // Target ratio of loudness in dB SPL to flow in L/s
+    "upper_flow_limit": 0.1, // L/s; above this the participant is out of limits
+    "lower_flow_limit": 0.08, // L/s; below this the participant is out of limits
+
+    // The ratio range that counts as being in the goal. The ball is white throughout this
+    // range, so if you change it, move the ball_color_scale keypoints to match.
+    "scoring_ratio_min": 0.95,
+    "scoring_ratio_max": 1.05,
+
+    // ---- Ball color -----------------------------------------------------------------------
+
+    // Each keypoint's ratio is the top of the band its color covers, as a fraction of the goal
+    // ratio. With the values below the ball is blue under 0.90, light blue from 0.90 to 0.95,
+    // white from 0.95 to 1.05, light red from 1.05 to 1.10, and red above that.
+    "ball_color_scale": [
+        {
+            "ratio": 0.9, // Below 90% of the goal ratio the ball is blue
+            "rgb": [ 0, 0, 1 ]
+        },
+        {
+            "ratio": 0.95, // 90% to 95% is light blue
+            "rgb": [ 0.5, 0.5, 1 ]
+        },
+        {
+            "ratio": 1.05, // 95% to 105% is white: this is the on-target band
+            "rgb": [ 1, 1, 1 ]
+        },
+        {
+            "ratio": 1.1, // 105% to 110% is light red
+            "rgb": [ 1.0, 0.5, 0.5 ]
+        },
+        {
+            "ratio": 2.0, // Anything above 110% is red
+            "rgb": [ 1.0, 0.0, 0.0 ]
+        }
+    ],
+
+    // Colors fade from one band into the next across a zone straddling each boundary. A larger
+    // zone looks smoother but makes it harder to determine the ratio's position. The zone
+    // cannot be so large that two boundaries overlap; the game will tell you if it is.
+    "color_blend_zone": 0.02, // The +/- range around a boundary over which the color changes
+    "color_blend_steps": 5, // Steps in the fade; more is smoother, fewer looks banded
+
+    // ---- Graphics -------------------------------------------------------------------------
+
+    "ball_size": 30, // Ball diameter in pixels
+    "graphics_scale": 100, // Pixels per game unit; larger spreads the movement out
+    "graphics_origin": 100, // Vertical offset in pixels; larger moves everything down
+
+    // ---- Ball movement --------------------------------------------------------------------
+
+    "frequency": 1.0, // Oscillation speed multiplier; larger makes the ball bounce faster
+    "frequency_base": 27.7, // Hz per dB before the multiplier above is applied
+    "volume_floor_db": 45.0, // Loudness at or below which the ball stops oscillating
+    "flow_position_scale": 20.0, // Pixels of vertical travel per L/s, before graphics_scale
+    "flow_position_offset": 1.25, // Vertical shift applied to the flow-to-position mapping
+    "goal_half_height_factor": 2.4, // Goal box half-height per L/s of flow
+
+    // ---- Saving data ----------------------------------------------------------------------
+
+    // Where trial files are written. A relative path is resolved against the folder the game
+    // runs from. Each trial produces one file named for the subject, session, start time and
+    // trial number.
+    "output_directory": "data",
+    "write_csv": true, // Also write a CSV beside each trial's JSON file
+
+    // ---- Comparing against the old WPF version ---------------------------------------------
+
+    // Reproduces the original's error formula, including the defect that made out-of-limit
+    // error roughly five orders of magnitude too large. Enable this only to compare new
+    // recordings against data collected with the old program.
+    "legacy_compat_scoring": false,
+
+    // ---- Development ----------------------------------------------------------------------
+
+    // Recorded signals that can be played back in place of real hardware, so the game can be
+    // run and demonstrated without a flow meter. Paths are relative to this file.
+    "replay_providers": []
+}

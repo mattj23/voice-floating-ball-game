@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VoiceBallGame.App/VoiceBallGame.App.csproj" />
+    <Project Path="src/VoiceBallGame.Core/VoiceBallGame.Core.csproj" />
+    <Project Path="src/VoiceBallGame.Hardware/VoiceBallGame.Hardware.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VoiceBallGame.Core.Tests/VoiceBallGame.Core.Tests.csproj" />
+  </Folder>
+</Solution>

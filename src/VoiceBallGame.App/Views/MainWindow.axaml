@@ -1,0 +1,31 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:VoiceBallGame.App.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
+        x:Class="VoiceBallGame.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Width="900" Height="700"
+        Title="Floating Ball Game">
+
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <Panel>
+        <ContentControl Content="{Binding Current}" IsVisible="{Binding !HasFatalError}" />
+
+        <!-- A settings file that cannot be read means the target and limits are not what the
+             experimenter set, so the game refuses to run rather than collect wrong data. -->
+        <Border IsVisible="{Binding HasFatalError}" Padding="40" VerticalAlignment="Center">
+            <StackPanel Spacing="16" MaxWidth="620">
+                <TextBlock Text="The settings file could not be used"
+                           FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding FatalError}" TextWrapping="Wrap" FontFamily="monospace" />
+                <TextBlock TextWrapping="Wrap" Opacity="0.7"
+                           Text="Fix app_settings.json and start the game again. Until then it will not run, because the target ratio and flow limits would not be the ones you intended." />
+            </StackPanel>
+        </Border>
+    </Panel>
+</Window>
