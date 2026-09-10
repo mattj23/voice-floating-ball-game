@@ -12,7 +12,7 @@
     <!-- The experimenter edits this file beside the executable, so it ships next to it. It is
          copied only when newer, which keeps local edits during a session from being overwritten
          on the next build. -->
-    <None Include="..\..\config\app_settings.json" Link="app_settings.json"
+    <None Include="..\..\config\app_settings.toml" Link="app_settings.toml"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

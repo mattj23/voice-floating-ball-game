@@ -1,7 +1,7 @@
 namespace VoiceBallGame.Core.Configuration;
 
 /// <summary>
-/// The experimenter-facing configuration, loaded from app_settings.json. Property names map to
+/// The experimenter-facing configuration, loaded from app_settings.toml. Property names map to
 /// snake_case keys in the file. Values here are the defaults used when a key is absent.
 /// </summary>
 public class GameSettings

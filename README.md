@@ -65,10 +65,20 @@ followed by every frame. The CSV file contains only the frames for analysis.
 
 ## Configuration
 
-Everything an experimenter tunes is in `config/app_settings.json`, which is copied next to the
-executable at build time. It contains comments, and the game never rewrites it. If a value is
-unusable, the game identifies the problem and refuses to start. This prevents the game from running
-with an unintended target.
+All experimenter-adjustable settings are in `config/app_settings.toml`, which is copied next to the
+executable at build time. The file contains comments that the game preserves because it never
+rewrites the file.
+
+The game reports all detected configuration problems together and refuses to start when those
+problems could produce unintended settings. Validation includes:
+
+- values that violate configuration constraints, such as a `lower_flow_limit` above
+  `upper_flow_limit`;
+- values of the wrong type, such as `write_csv = 1` when the setting requires `true` or `false`;
+- **misspelled settings**, with the closest recognized setting when available. For example,
+  `uper_flow_limit = 0.2` produces an error instead of being silently ignored by automatic binding.
+
+Any omitted setting retains its built-in default.
 
 ## Platform notes
 

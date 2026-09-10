@@ -9,7 +9,7 @@ namespace VoiceBallGame.Core.Engine;
 /// <remarks>
 /// <para>
 /// Each keypoint's ratio is the upper bound of the band its color covers, which is how the
-/// comments in app_settings.json describe the scale: with the shipped keypoints, everything below
+/// comments in app_settings.toml describe the scale: with the shipped keypoints, everything below
 /// 0.90 is blue, 0.90 to 0.95 is light blue, 0.95 to 1.05 is white, and so on. Transitions are
 /// blended across a zone straddling each band boundary.
 /// </para>

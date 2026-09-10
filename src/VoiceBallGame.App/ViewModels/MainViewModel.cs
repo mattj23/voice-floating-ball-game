@@ -120,7 +120,7 @@ public class MainViewModel : ViewModelBase
             sessionId: "simulated");
     }
 
-    /// <summary>Locates app_settings.json beside the executable, or in a config folder above it.</summary>
+    /// <summary>Locates app_settings.toml beside the executable, or in a config folder above it.</summary>
     private static string? SettingsPath()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
@@ -129,8 +129,8 @@ public class MainViewModel : ViewModelBase
         {
             foreach (var candidate in new[]
                      {
-                         Path.Combine(directory.FullName, "app_settings.json"),
-                         Path.Combine(directory.FullName, "config", "app_settings.json"),
+                         Path.Combine(directory.FullName, "app_settings.toml"),
+                         Path.Combine(directory.FullName, "config", "app_settings.toml"),
                      })
             {
                 if (File.Exists(candidate)) return candidate;

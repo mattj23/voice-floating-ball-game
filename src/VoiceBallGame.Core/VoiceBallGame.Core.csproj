@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="6.0.1" />
+    <PackageReference Include="Tomlyn" Version="2.10.1" />
   </ItemGroup>
 
 </Project>

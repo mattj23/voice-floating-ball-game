@@ -24,7 +24,7 @@
                            FontSize="20" FontWeight="SemiBold" />
                 <TextBlock Text="{Binding FatalError}" TextWrapping="Wrap" FontFamily="monospace" />
                 <TextBlock TextWrapping="Wrap" Opacity="0.7"
-                           Text="Fix app_settings.json and start the game again. Until then it will not run, because the target ratio and flow limits would not be the ones you intended." />
+                           Text="Fix app_settings.toml, then restart the game. The game cannot run until the file contains valid settings." />
             </StackPanel>
         </Border>
     </Panel>
