@@ -26,13 +26,13 @@ engineering units directly.
 ## Run the application
 
 ```bash
-dotnet run --project src/VoiceBallGame.App
+dotnet run -c Release --project src/VoiceBallGame.App
 ```
 
 To run or develop the game without attached hardware:
 
 ```bash
-dotnet run --project src/VoiceBallGame.App -- --demo
+dotnet run -c Release --project src/VoiceBallGame.App -- --demo
 ```
 
 `--demo` plays against a simulated participant who voices in bouts around the target ratio. The
