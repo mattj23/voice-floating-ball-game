@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <!-- Defines the application version. The packaging scripts read this value, and a release
+         build overrides it with -p:Version. -->
+    <Version>0.1.0</Version>
+    <Product>Voice Ball Game</Product>
+    <Authors>Matt Jarvis</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+
+    <!-- In a development build the experimenter edits this file beside the executable. It is
+         copied only when newer, which keeps local edits during a session from being overwritten
+         on the next build. An installed build copies it into the user's configuration folder on
+         first run (see Services/AppPaths.cs). -->
+    <None Include="..\..\config\app_settings.toml" Link="app_settings.toml"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.2" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="ReactiveUI.Avalonia" Version="12.1.2" />
+    <PackageReference Include="ScottPlot.Avalonia" Version="5.1.59" />
+    <!-- Keep this version synchronized with the vpk tool used by the scripts in build/. -->
+    <PackageReference Include="Velopack" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VoiceBallGame.Core\VoiceBallGame.Core.csproj" />
+    <ProjectReference Include="..\VoiceBallGame.Hardware\VoiceBallGame.Hardware.csproj" />
+  </ItemGroup>
+</Project>

@@ -3,6 +3,9 @@
 ###############################################################################
 * text=auto
 
+# Shell scripts run on macOS and Linux, where CRLF line endings break shebangs.
+*.sh text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

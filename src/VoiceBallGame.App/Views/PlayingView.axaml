@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VoiceBallGame.App.ViewModels"
+             xmlns:controls="using:VoiceBallGame.App.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
+             x:Class="VoiceBallGame.App.Views.PlayingView"
+             x:DataType="vm:PlayingViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Status bar -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="16,12">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Border Background="#E53935" CornerRadius="10" Padding="10,3"
+                        IsVisible="{Binding IsInTrial}">
+                    <TextBlock Text="Recording" Foreground="White" FontSize="12" FontWeight="SemiBold" />
+                </Border>
+                <TextBlock VerticalAlignment="Center" Opacity="0.7" FontSize="12"
+                           IsVisible="{Binding IsInTrial}"
+                           Text="{Binding TrialElapsed, StringFormat='{}{0:F1} s'}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Background="#FB8C00" CornerRadius="10" Padding="10,3"
+                        IsVisible="{Binding SignalLost}">
+                    <TextBlock Text="Signal lost" Foreground="White" FontSize="12" FontWeight="SemiBold" />
+                </Border>
+                <Border Background="#FDD835" CornerRadius="10" Padding="10,3"
+                        IsVisible="{Binding FlowOutOfLimits}">
+                    <TextBlock Text="Flow out of limits" Foreground="Black" FontSize="12" FontWeight="SemiBold" />
+                </Border>
+            </StackPanel>
+
+            <Button Grid.Column="2" Content="End session" Command="{Binding StopCommand}" />
+        </Grid>
+
+        <!-- The game itself -->
+        <Grid Grid.Row="1">
+            <controls:BallGameControl Frame="{Binding Frame}" BallSize="{Binding BallSize}" />
+
+            <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,24"
+                    Background="#CC000000" CornerRadius="8" Padding="18,10"
+                    IsVisible="{Binding HasTrialMessage}">
+                <TextBlock Text="{Binding TrialMessage}" Foreground="White" FontSize="15"
+                           TextWrapping="Wrap" MaxWidth="560" TextAlignment="Center" />
+            </Border>
+        </Grid>
+
+        <!-- Live readouts -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,24,*" Margin="16,12">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0" Text="Loudness" FontSize="12" Opacity="0.7" />
+                    <TextBlock Grid.Column="1" FontSize="12" FontWeight="SemiBold"
+                               Text="{Binding Volume, StringFormat='{}{0:F1} dB SPL'}" />
+                </Grid>
+                <ProgressBar Minimum="0" Maximum="100" Value="{Binding Volume}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Spacing="4">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0" Text="Flow" FontSize="12" Opacity="0.7" />
+                    <TextBlock Grid.Column="1" FontSize="12" FontWeight="SemiBold"
+                               Text="{Binding Flow, StringFormat='{}{0:F3} L/s'}" />
+                </Grid>
+                <ProgressBar Minimum="0" Maximum="0.3" Value="{Binding Flow}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

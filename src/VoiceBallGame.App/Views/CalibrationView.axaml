@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VoiceBallGame.App.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="VoiceBallGame.App.Views.CalibrationView"
+             x:DataType="vm:CalibrationViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="32" Spacing="20" MaxWidth="620" HorizontalAlignment="Center">
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Calibrate the microphone" FontSize="24" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding DeviceName}" Opacity="0.7" />
+            </StackPanel>
+
+            <TextBlock TextWrapping="Wrap" Opacity="0.8"
+                       Text="Produce a steady sound and hold it for at least three seconds while recording, with a sound level meter beside the microphone. Then enter the level the meter read. The game needs one known loudness to interpret everything else the microphone picks up." />
+
+            <Border Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                    CornerRadius="6" Padding="12" IsVisible="{Binding HasError}">
+                <TextBlock Text="{Binding Error}" TextWrapping="Wrap" />
+            </Border>
+
+            <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Column="0" Text="Level" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2" FontSize="12" FontWeight="SemiBold"
+                               Text="{Binding ElapsedSeconds, StringFormat='{}{0:F1} s recorded'}" />
+                </Grid>
+                <ProgressBar Minimum="0" Maximum="0.5" Value="{Binding LiveLevel}" Height="10" />
+            </StackPanel>
+
+            <Button Content="{Binding RecordButtonText}" Command="{Binding RecordCommand}"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="0,10" />
+
+            <Border IsVisible="{Binding HasMeasurement}"
+                    Background="{DynamicResource SystemFillColorSuccessBackgroundBrush}"
+                    CornerRadius="6" Padding="12">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Steady level found" FontWeight="SemiBold" />
+                    <TextBlock FontFamily="monospace"
+                               Text="{Binding MeasuredLevel, StringFormat='{}{0:F6}'}" />
+                </StackPanel>
+            </Border>
+
+            <StackPanel Spacing="8" IsVisible="{Binding HasMeasurement}">
+                <TextBlock Text="What did the sound level meter read?" FontWeight="SemiBold" />
+                <TextBox Text="{Binding ActualDb}" Watermark="e.g. 75" />
+                <TextBlock Text="dB SPL" FontSize="11" Opacity="0.6" />
+            </StackPanel>
+
+            <Grid ColumnDefinitions="*,12,*">
+                <Button Grid.Column="0" Content="Cancel" Command="{Binding CancelCommand}"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="0,10" />
+                <Button Grid.Column="2" Content="Save calibration" Command="{Binding SaveCommand}"
+                        Classes="accent"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="0,10" />
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
