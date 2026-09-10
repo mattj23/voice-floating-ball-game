@@ -76,6 +76,24 @@ public class TrialRecorderTests : IDisposable
     }
 
     [Fact]
+    public void ARelativeOutputDirectoryIsResolvedAgainstTheBaseDirectory()
+    {
+        var settings = new GameSettings { OutputDirectory = "data" };
+
+        var recorder = new TrialRecorder(settings, _directory);
+
+        Assert.Equal(Path.Combine(_directory, "data"), recorder.OutputDirectory);
+    }
+
+    [Fact]
+    public void AnAbsoluteOutputDirectoryIgnoresTheBaseDirectory()
+    {
+        var recorder = new TrialRecorder(Settings(), Path.GetTempPath());
+
+        Assert.Equal(_directory, recorder.OutputDirectory);
+    }
+
+    [Fact]
     public void TheSavedFileHoldsBothTheSummaryAndTheSamples()
     {
         var recorder = new TrialRecorder(Settings());

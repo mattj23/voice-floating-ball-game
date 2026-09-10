@@ -92,9 +92,6 @@ public sealed class CalibrationStore
         Load();
     }
 
-    public static string DefaultPath =>
-        Path.Combine(AppContext.BaseDirectory, "calibrations.json");
-
     public MicCalibration? Find(string deviceKey) =>
         _entries.TryGetValue(deviceKey, out var calibration) && calibration.IsUsable ? calibration : null;
 

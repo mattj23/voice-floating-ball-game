@@ -53,7 +53,7 @@ public class PlayingViewModel : ViewModelBase, IDisposable
             volumeOption.Create(_clock, settings),
             _clock,
             engine,
-            new TrialRecorder(settings));
+            new TrialRecorder(settings, shell.Paths.DataRoot));
 
         // The game loop runs on a background thread. These three subscriptions are the only
         // boundary: no bound property is touched except through the UI dispatcher.

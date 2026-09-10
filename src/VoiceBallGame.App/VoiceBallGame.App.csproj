@@ -4,14 +4,21 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <!-- Defines the application version. The packaging scripts read this value, and a release
+         build overrides it with -p:Version. -->
+    <Version>0.1.0</Version>
+    <Product>Voice Ball Game</Product>
+    <Authors>Matt Jarvis</Authors>
   </PropertyGroup>
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
 
-    <!-- The experimenter edits this file beside the executable, so it ships next to it. It is
+    <!-- In a development build the experimenter edits this file beside the executable. It is
          copied only when newer, which keeps local edits during a session from being overwritten
-         on the next build. -->
+         on the next build. An installed build copies it into the user's configuration folder on
+         first run (see Services/AppPaths.cs). -->
     <None Include="..\..\config\app_settings.toml" Link="app_settings.toml"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
@@ -27,6 +34,8 @@
     </PackageReference>
     <PackageReference Include="ReactiveUI.Avalonia" Version="12.1.2" />
     <PackageReference Include="ScottPlot.Avalonia" Version="5.1.59" />
+    <!-- Keep this version synchronized with the vpk tool used by the scripts in build/. -->
+    <PackageReference Include="Velopack" Version="0.0.1298" />
   </ItemGroup>
 
   <ItemGroup>

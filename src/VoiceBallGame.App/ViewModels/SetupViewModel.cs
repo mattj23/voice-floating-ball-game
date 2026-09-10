@@ -97,7 +97,8 @@ public class SetupViewModel : ViewModelBase
     public bool HasError => Error is not null;
 
     /// <summary>The directory where the game will write trials from this session.</summary>
-    public string OutputDirectory => new Core.Recording.TrialRecorder(_shell.Settings).OutputDirectory;
+    public string OutputDirectory => 
+        new Core.Recording.TrialRecorder(_shell.Settings, _shell.Paths.DataRoot).OutputDirectory;
 
     public string SettingsSummary => _shell.SettingsFile is { } file
         ? $"Settings loaded from {file}"

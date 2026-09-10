@@ -44,6 +44,48 @@ Run the tests:
 dotnet test
 ```
 
+## Installers
+
+Installers are built with [Velopack](https://velopack.io). Install the matching `vpk` tool once:
+
+```bash
+dotnet tool install -g vpk --version 0.0.1298
+```
+
+| Platform | Command | Output in `artifacts/releases/<runtime>/` |
+|---|---|---|
+| Windows | `./build/pack.ps1` | `VoiceBallGame-win-Setup.exe`, portable zip |
+| Linux | `./build/pack.ps1 -Runtime linux-x64` (from Windows) or `build/pack.sh` | `VoiceBallGame.AppImage` |
+| macOS (Apple Silicon) | `build/pack.sh` (on a Mac only) | `.pkg` installer, portable zip |
+
+The version comes from `<Version>` in `src/VoiceBallGame.App/VoiceBallGame.App.csproj`. Pass
+`-Version` (PowerShell) or `--version` (bash) to override it. The **Build installers** GitHub
+Actions workflow builds all three platforms. Run it manually for test builds, or push a tag such as
+`v0.2.0` to also create a draft GitHub release.
+
+The Windows installer needs no administrator rights and installs to `%LocalAppData%\VoiceBallGame`.
+The macOS build is unsigned unless signing identities are supplied (see `build/pack.sh`). On first
+launch, right-click the app and choose **Open**.
+
+### File locations for installed copies
+
+Updates replace the application folder, and the macOS and Linux bundles are read-only. Therefore,
+an installed copy stores all writable files outside the application folder. These files survive
+updates and uninstalls.
+
+| | Settings and calibrations | Trial data (relative `output_directory`) |
+|---|---|---|
+| Windows | `%AppData%\VoiceBallGame\` | `Documents\VoiceBallGame\` |
+| Linux | `~/.config/VoiceBallGame/` | `~/Documents/VoiceBallGame/` |
+| macOS | `~/Library/Application Support/VoiceBallGame/` | `~/Documents/VoiceBallGame/` |
+
+On first run, the installed copy creates `app_settings.toml` in its settings folder from the shipped
+defaults. The application does not overwrite this file on subsequent runs. The setup screen shows
+which settings file was loaded and where the application will write trials. A development build
+(`dotnet run`) behaves as described below: it stores calibrations beside the executable, loads
+settings from beside the executable or from `config/`, and resolves data paths relative to the
+working directory.
+
 ## Setting up a session
 
 1. **Pick the flow meter.** Serial ports are listed by name. On Linux the meter usually appears as
@@ -85,7 +127,7 @@ Any omitted setting retains its built-in default.
 - **Linux:** your user must be in the `dialout` group to open a serial port. Add yourself with
   `sudo usermod -aG dialout $USER`, then log out and back in.
 - **macOS:** the app bundle needs an `NSMicrophoneUsageDescription` entry, and the first run prompts
-  for microphone access.
+  for microphone access. `build/macos/Info.plist` provides it for packaged builds.
 - **Windows:** no additional setup.
 
 ## Changes that affect data compatibility

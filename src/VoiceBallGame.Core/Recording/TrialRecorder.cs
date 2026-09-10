@@ -25,12 +25,20 @@ public sealed class TrialRecorder
 
     private readonly GameSettings _settings;
 
-    public TrialRecorder(GameSettings settings)
+    /// <param name="settings">The settings that specify the output directory and CSV option.</param>
+    /// <param name="baseDirectory">
+    /// The directory against which to resolve a relative output directory. Defaults to the current
+    /// directory. An installed build passes a per-user folder, because its working directory is
+    /// the application folder, which updates replace.
+    /// </param>
+    public TrialRecorder(GameSettings settings, string? baseDirectory = null)
     {
         _settings = settings;
+
+        var root = Path.GetFullPath(baseDirectory ?? Directory.GetCurrentDirectory());
         OutputDirectory = string.IsNullOrWhiteSpace(settings.OutputDirectory)
-            ? Directory.GetCurrentDirectory()
-            : Path.GetFullPath(settings.OutputDirectory);
+            ? root
+            : Path.GetFullPath(settings.OutputDirectory, root);
     }
 
     public string OutputDirectory { get; }

@@ -1,0 +1,102 @@
+name: Build installers
+
+# Builds Velopack packages for Windows, Linux, and macOS. A manual run uploads the packages as
+# workflow artifacts. Pushing a tag such as v0.2.0 also creates a draft GitHub release.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  # Keep synchronized with the Velopack package version in VoiceBallGame.App.csproj.
+  VPK_VERSION: 0.0.1298
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          # macOS packages require a macOS runner. macos-latest uses Apple Silicon.
+          - os: macos-latest
+            rid: osx-arm64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Test
+        run: dotnet test VoiceBallGame.slnx -c Release
+
+      - name: Install vpk
+        run: dotnet tool install -g vpk --version ${{ env.VPK_VERSION }}
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./build/pack.ps1 -Runtime ${{ matrix.rid }} -Version "${{ steps.version.outputs.version }}"
+
+      - name: Package (macOS / Linux)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          args=(--runtime "${{ matrix.rid }}")
+          if [[ -n "${{ steps.version.outputs.version }}" ]]; then
+            args+=(--version "${{ steps.version.outputs.version }}")
+          fi
+          bash build/pack.sh "${args[@]}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.rid }}
+          path: artifacts/releases/${{ matrix.rid }}
+          if-no-files-found: error
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: packages
+          merge-multiple: true
+
+      # Files for each channel have distinct names, so all channels can share one release.
+      # Retaining the feed files (releases.*.json and nupkgs) allows the addition of automatic
+      # updates later.
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" packages/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --draft \
+            --title "Voice Ball Game ${GITHUB_REF_NAME#v}" \
+            --generate-notes

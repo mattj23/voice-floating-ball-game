@@ -23,9 +23,11 @@ public class MainViewModel : ViewModelBase
     {
         // The parameterless constructor exists for the XAML previewer, which cannot supply
         // settings. It shows the setup screen with the built-in defaults.
+        Paths = AppPaths.Resolve();
+
         try
         {
-            var path = SettingsPath();
+            var path = Paths.SettingsFile;
             Settings = path is null ? new GameSettings() : SettingsLoader.Load(path);
             SettingsDirectory = path is null
                 ? AppContext.BaseDirectory
@@ -39,7 +41,7 @@ public class MainViewModel : ViewModelBase
             FatalError = e.Message;
         }
 
-        Calibrations = new CalibrationStore(CalibrationStore.DefaultPath);
+        Calibrations = new CalibrationStore(Paths.CalibrationsFile);
         Catalog = new SourceCatalog(
             Settings,
             SettingsDirectory,
@@ -48,6 +50,8 @@ public class MainViewModel : ViewModelBase
 
         ShowSetup();
     }
+
+    public AppPaths Paths { get; }
 
     public GameSettings Settings { get; }
 
@@ -118,27 +122,5 @@ public class MainViewModel : ViewModelBase
             new SimulatedVolumeOption(),
             subjectId: "demo",
             sessionId: "simulated");
-    }
-
-    /// <summary>Locates app_settings.toml beside the executable, or in a config folder above it.</summary>
-    private static string? SettingsPath()
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            foreach (var candidate in new[]
-                     {
-                         Path.Combine(directory.FullName, "app_settings.toml"),
-                         Path.Combine(directory.FullName, "config", "app_settings.toml"),
-                     })
-            {
-                if (File.Exists(candidate)) return candidate;
-            }
-
-            directory = directory.Parent;
-        }
-
-        return null;
     }
 }
