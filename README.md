@@ -13,15 +13,20 @@ trial.
 
 | Directory | What it is |
 |---|---|
-| `src/`, `tests/`, `config/` | The current cross-platform application (.NET 8, Avalonia, ReactiveUI) |
-| `FloatingBallGame/` | The original WPF application, kept as reference. Windows only, .NET Framework 4.6.1 |
+| `src/` | The application (.NET 8, Avalonia, ReactiveUI) |
+| `tests/` | Unit tests for the game engine, scoring, calibration, and settings |
+| `config/` | The default `app_settings.toml` shipped with the application |
+| `build/` | Installer packaging scripts (see [Installers](#installers)) |
 
-The rebuilt application runs on Windows, Linux, and macOS. It reads airflow from a Sensirion
-SFM3x00 flow meter over a Nicolay serial connector using
-[NicolaySerialSFM3x00](https://www.nuget.org/packages/NicolaySerialSFM3x00). The original measured
-airflow with an analog transducer plugged into a sound card line-in, which is why the flow
-calibration workflow is no longer necessary because the SFM3x00 is factory-calibrated and reports
-engineering units directly.
+The application runs on Windows, Linux, and macOS. It reads airflow from a Sensirion SFM3x00 flow
+meter over a Nicolay serial connector using
+[NicolaySerialSFM3x00](https://www.nuget.org/packages/NicolaySerialSFM3x00).
+
+The application replaces an earlier Windows-only WPF program built on .NET Framework 4.6.1. That
+program was removed from the repository. Its source remains available in the Git history at commit
+`6bbe8b7`. The earlier program measured airflow with an analog transducer connected to a sound card
+line-in. The SFM3x00 is factory-calibrated and reports engineering units directly, so the current
+application does not need the earlier flow calibration workflow.
 
 ## Run the application
 
@@ -49,7 +54,7 @@ dotnet test
 Installers are built with [Velopack](https://velopack.io). Install the matching `vpk` tool once:
 
 ```bash
-dotnet tool install -g vpk --version 0.0.1298
+dotnet tool install -g vpk --version 1.2.0
 ```
 
 | Platform | Command | Output in `artifacts/releases/<runtime>/` |

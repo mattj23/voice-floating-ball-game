@@ -35,7 +35,7 @@
     <PackageReference Include="ReactiveUI.Avalonia" Version="12.1.2" />
     <PackageReference Include="ScottPlot.Avalonia" Version="5.1.59" />
     <!-- Keep this version synchronized with the vpk tool used by the scripts in build/. -->
-    <PackageReference Include="Velopack" Version="0.0.1298" />
+    <PackageReference Include="Velopack" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>

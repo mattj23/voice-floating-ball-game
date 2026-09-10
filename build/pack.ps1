@@ -35,7 +35,7 @@ $ErrorActionPreference = 'Stop'
 $PackId = 'VoiceBallGame'
 $PackTitle = 'Voice Ball Game'
 $PackAuthors = 'Matt Jarvis'
-$VpkVersion = '0.0.1298'
+$VpkVersion = '1.2.0'
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $Project = Join-Path $RepoRoot 'src/VoiceBallGame.App/VoiceBallGame.App.csproj'

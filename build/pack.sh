@@ -26,7 +26,7 @@ PACK_ID="VoiceBallGame"
 PACK_TITLE="Voice Ball Game"
 PACK_AUTHORS="Matt Jarvis"
 BUNDLE_ID="com.mattjarvis.voiceballgame"
-VPK_VERSION="0.0.1298"
+VPK_VERSION="1.2.0"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT="$REPO_ROOT/src/VoiceBallGame.App/VoiceBallGame.App.csproj"
